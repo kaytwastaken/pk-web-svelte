@@ -1,0 +1,84 @@
+// Colors
+$bg: #151514;
+$gray: #3c3d3c;
+    $gray-2: #292928;
+        $gray-3: #505050;
+$blue: #309695;
+$blue-secondary: #1f6362;
+$orange: #f26430;
+$red: #f23030;
+$text: #dddddc;
+
+@font-face {
+    font-family: Raleway;
+    font-weight: 400;
+    src: url(/static/fonts/Raleway-Regular.ttf);
+}
+
+:global(*) {
+    margin: 0;
+    padding: 0;
+    color: $text;
+    font-family: Raleway;
+    transition-duration: 200ms;
+}
+
+:global(body) {
+    background-color: $bg;
+}
+
+:global(a) {
+    color: $orange;
+}
+
+:global(code) {
+    color: $blue;
+    font-family: monospace;
+    background-color: $gray;
+    padding: .25rem;
+    border-radius: 5px;
+    font-size: .9em;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+form {
+    margin-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    * {
+        margin: .5rem 0 .5rem 0;
+    }
+}
+input[type=text] {
+    padding: .6rem;
+    margin: 0 0 .25rem 0;
+    border: 1px solid $text;
+    border-radius: 5px;
+    background: none;
+}
+input[type=submit] {
+    width: 5rem;
+    background: $blue;
+    margin: .25rem 0 .25rem 0;
+    padding: .5rem;
+    border: none;
+    border-radius: 5px;
+    font-size:medium;
+    font-weight: bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+input[type=submit]:hover {
+    cursor: pointer;
+    background: $blue-secondary;
+}
+input:disabled:hover {
+    background: $blue;
+    cursor: default;
+}
+input:disabled {
+    opacity: .6;
+}
