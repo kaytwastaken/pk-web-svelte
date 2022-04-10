@@ -1,3 +1,5 @@
+// Define types used to data parsing and representation, copied from pk-web
+
 export type SysPrivacy ={
     description_privacy: string
     member_list_privacy: string

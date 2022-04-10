@@ -2,10 +2,14 @@
     export let system
 </script>
 
+<!-- Return a div to contain passed system information -->
 <div class="system" style="border-bottom: {system.color ? `3px solid #${system.color}` : 'none'};">
+    <!-- Horizontal contianer -->
     <span>
         <img src={system.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+        <!-- Vertical container -->
         <div>
+            <!-- Horizontal container -->
             <span>
                 <h1>{system.name}</h1>
                 <p>{system.tag ? `(${system.tag})` : "No tag set"}</p>
@@ -15,16 +19,11 @@
     </span>
 </div>
 
-<span class="hr"></span>
+
 
 <style lang="scss">
     .container {
         align-items: center;
-    }
-    .hr {
-        width: 70vw;
-        border-bottom: 3px solid $gray;
-        margin: 1rem 0 2rem 0;
     }
     .system {
         width: 70vw;

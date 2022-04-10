@@ -2,10 +2,14 @@
     export let member
 </script>
 
+<!-- Return a div to be used in {#each} block on the profile page -->
 <div class="memberCard" style="border-bottom: {member.color ? `3px solid #${member.color}` : 'none'};">
+    <!-- Horizontal container -->
     <span>
         <img src={member.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+        <!-- Vertical container -->
         <div>
+            <!-- Horizontal container -->
             <span>
                 <h2>{member.name}</h2>
                 <p>{member.display_name ? `(${member.display_name})` : "No display name set"}</p>
@@ -29,7 +33,6 @@
         background: $gray;
         padding: 1rem;
         margin-bottom: 1rem;
-        // border-radius: .5rem .5rem 0 0;
         border-radius: .5rem;
         h1, h2, h3 {
             margin: 0;
