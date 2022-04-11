@@ -40,6 +40,10 @@ $text: #dddddc;
     font-size: .9em;
 }
 
+:global(p) {
+    white-space: pre;
+}
+
 .container {
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    export let token:string
+    export let token
     export let id:string
     
     import type { System, Member } from '../lib/types'
@@ -10,22 +10,28 @@
     import MemberCard from './Members.svelte'
 
     let system:System
+    let systemName
     let members:Array<Member>
 
     // If no token is passed (for public info) set auth to false
-    token ?? {auth: false}
+    let auth = true
+    if (!token) {
+        token = {auth:false}
+        auth = false
+    }
 
     // Define functions to fetch info
-    const systemFetch = async () => {
-        system = await pk().systems(id).get({ token })
-    }
     const memberFetch = async () => {
         members = await pk().systems(id).members.get({ token })
     }
+    const systemFetch = async () => {
+        system = await pk().systems(id).get({ token })
+        systemName = system.name
+    }
 
     // Map functions to promise aliases to be used when reloading page content
-    let systemPromise = systemFetch()
     let memberPromise = memberFetch()
+    let systemPromise = systemFetch()
 
     // Reload info using promise aliases
     function reload(id = null) {
@@ -38,12 +44,16 @@
 
 </script>
 
+<svelte:head>
+    <title>{systemName} | Pk-web</title>
+</svelte:head>
+
 <div class="container">    
     <!-- Wait for system info to return -->
     {#await systemPromise}
         <h1>Loading system...</h1>
     {:then} 
-        <SystemCard system={system}></SystemCard>
+        <SystemCard system={system} members={members}></SystemCard>
     {/await}
 
     <span class="hr"></span>
@@ -55,7 +65,7 @@
         <!-- Map each member to a card -->
         <div class="members">
             {#each members as member}
-                <MemberCard member={member}></MemberCard>
+                <MemberCard member={member} auth={auth}></MemberCard>
             {/each}
         </div>
     

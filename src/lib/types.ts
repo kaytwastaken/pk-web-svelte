@@ -18,7 +18,7 @@ export type System = {
     banner: string
     color: string
     created: Date
-    timezone: string
+    pronouns: string
     privacy: SysPrivacy
 }
 

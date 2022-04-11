@@ -24,7 +24,6 @@ export default function() {
                     method: name,
                     headers: {
                         authorization: token ?? (auth ? localStorage.getItem("pk-token") : undefined),
-                        // "content-type": name == "get" ? undefined : "application/json"
                     },
                     data: !!data ? JSON.stringify(data) : undefined,
                     validateStatus: () => true,
