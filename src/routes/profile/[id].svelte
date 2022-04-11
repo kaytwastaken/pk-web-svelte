@@ -58,7 +58,7 @@
         text-align: center;
     }
     form {
-        margin-top: 0 !important;
+        margin-bottom: 1rem;
     }
     span {
         display: flex;

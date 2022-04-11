@@ -2,6 +2,7 @@
     export let token
     export let id:string
     
+    import { loggedIn, currentUser } from '../stores';
     import type { System, Member } from '../lib/types'
     import pk from '../lib/pk'
     import { goto } from '$app/navigation';
@@ -12,6 +13,13 @@
     let system:System
     let systemName
     let members:Array<Member>
+        
+    let user
+
+    // Subcribe to the currentUser store
+    currentUser.subscribe(value => {
+        user = value
+    })
 
     // If no token is passed (for public info) set auth to false
     let auth = true
@@ -25,7 +33,8 @@
         members = await pk().systems(id).members.get({ token })
     }
     const systemFetch = async () => {
-        system = await pk().systems(id).get({ token })
+        if ( user != null ) { system = user }
+        else { system = await pk().systems(id).get({ token }) }
         systemName = system.name
     }
 
@@ -71,7 +80,7 @@
     
         <!-- Return the error -->
         {:catch error}
-        <h1 class="err">{error.code == 429 ? 'Too many requests, try again.' : `${error.message}`}</h1>
+        <h1 class="err" style="text-align: center;">{error.code == 429 ? 'Too many requests, try again.' : `${error.message}`}</h1>
         <form on:submit|preventDefault={error.code == 429 ? () => {reload()} : () => {reload(id)}}>
             <input
                 type="text"

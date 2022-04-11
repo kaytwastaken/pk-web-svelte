@@ -33,23 +33,21 @@
         </span>
     </div>
     <div class="tray hidden" id="{system.id}-tray">
-        <div style="margin-bottom: 1rem;">
-            {#if system.banner}
-                <img src={system.banner} alt="">
-            {/if}
-            <p>Registered: <code>{dateFormat(system.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(system.created, "h:MM:ss TT")}</code></p>
-            <p>Pronouns: {system.pronouns ?? "N/A"}</p>
-            <p>Tag: {system.tag ?? "N/A"}</p>
-            <p>Color: {system.color ?? "N/A"}</p>
-            {#if members}
-                <p>Members: {members.length}</p>
-            {/if}
-        </div>
-        <span>
+        {#if system.banner}
+            <img src={system.banner} alt="">
+        {/if}
+        <p>Registered: <code>{dateFormat(system.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(system.created, "h:MM:ss TT")}</code></p>
+        <p>Pronouns: {system.pronouns ?? "N/A"}</p>
+        <p>Tag: {system.tag ?? "N/A"}</p>
+        <p>Color: {system.color ?? "N/A"}</p>
+        {#if members}
+            <p>Members: {members.length}</p>
+        {/if}
+        <div style="inline-size: 50%;">
             <p>
                 {system.description ?? "No description set"}
             </p>
-        </span>
+        </div>
     </div>
 </div>
 
@@ -62,7 +60,7 @@
         padding: 1rem;
         border-radius: .5rem;
         p {
-            width: 50%;
+            white-space: pre-wrap;
         }
         img {
             width: 50%;
@@ -77,6 +75,8 @@
         border-radius: .5rem;
         background: $gray;
         margin-bottom: 1rem;
+        // padding: 1rem;
+        // width: calc(70vw + 2rem);
     }
     .system {
         width: 70vw;

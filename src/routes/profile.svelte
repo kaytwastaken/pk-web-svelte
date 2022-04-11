@@ -1,10 +1,15 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation'
 
     let token
     // Get token from localStorage
-    onMount(() => {token = localStorage.getItem('token')})
+    onMount(async () => {
+        token = localStorage.getItem('token')
+        if (token == undefined ) goto('/')
+    })
     
+
     import Profile from '../components/Profile.svelte'
 
 

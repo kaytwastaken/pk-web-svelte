@@ -39,6 +39,7 @@
             // Save currently logged in user to Svelte stores
             loggedIn.update(() => true)
             currentUser.update(() => res)
+            // console.error(user)
     
         // If the login fails tell the user and log it.
         } catch (error) {

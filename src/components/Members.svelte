@@ -74,7 +74,6 @@
         padding: 1rem;
         border-radius: .5rem;
         p {
-            width: 50%;
         }
         img {
             width: 50%;
@@ -85,7 +84,7 @@
         }
         .detail {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: auto auto auto;
         }
     }
     
