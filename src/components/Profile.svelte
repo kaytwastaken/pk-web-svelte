@@ -33,7 +33,7 @@
         members = await pk().systems(id).members.get({ token })
     }
     const systemFetch = async () => {
-        if ( user != null ) { system = user }
+        if ( user != null && auth == true ) { system = user }
         else { system = await pk().systems(id).get({ token }) }
         systemName = system.name
     }
@@ -85,12 +85,12 @@
             <input
                 type="text"
                 bind:value={id}
-                style="display: {error.code == 429 || 403 ? 'none' : 'unset'};"
+                style="display: {error.code == 429 || error.code == 403 || error.code == 404 ? 'none' : 'unset'};"
             >
             <input
                 type="submit"
                 disabled={id.length != 5 && id.length != 18 && error.code != 429}
-                style="display: {error.code == 403 ? 'none' : 'unset'};"
+                style="display: {error.code == 403 || error.code == 404 ? 'none' : 'unset'};"
             >
         </form>
     

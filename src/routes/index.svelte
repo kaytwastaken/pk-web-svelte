@@ -1,17 +1,25 @@
 <script lang="ts">
     import { loggedIn, currentUser } from '../stores';
-    import pk from '$lib/pk';
+    import { login, logout } from '$lib/user'
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     
     // Content-binded variables
     let token = ''
+    let id = ''
+    // let value = token
+    let edit = true
     let loading = false
     let err = null
 
+    // Elements
+    let editButton
+    let publicButton
+    let form
+    let formInput
+
     let isLoggedIn:boolean
     let user;
-
 
     // Subcribe to the loggedIn and currentUser stores
     loggedIn.subscribe(value => {
@@ -21,48 +29,43 @@
         user = value
     })
 
-    // If token is already stored, use it to log in
     onMount(() => { 
+        // If token is already stored, use it to log in
         if (localStorage.getItem("token")) {
             login(localStorage.getItem("token"));
         }
+
+        // Assign elements to alias variables
+        editButton = document.getElementById('editButton')
+        publicButton = document.getElementById('publicButton')
+        form = document.getElementById('loginForm')
+        formInput = document.getElementById('formInput')
     })
 
-    async function login(token) {
-        // Set loading state to true
+    // Define handler for login imported from user
+    async function logUserIn () {
         loading = true
-        
-        // Try logging in using the token in memory and storing it in localStorage
-        try {
-            localStorage.setItem('token', token)
-            const res = await pk().systems('@me').get({ token })
-            // Save currently logged in user to Svelte stores
-            loggedIn.update(() => true)
-            currentUser.update(() => res)
-            // console.error(user)
-    
-        // If the login fails tell the user and log it.
-        } catch (error) {
-            err = error
-            console.log(error.message)
-            // Nuke the token and stores
-            localStorage.removeItem('token')
-            loggedIn.update(() => false)
-            currentUser.update(() => null)
-        }
-
-        // Set loading state to false after a failed or succesful login
+        await login(token)
+        token = ''
         loading = false
     }
 
-    function logout() {
-        // Nuke the token and stores when a user logs out
-        token = '';
-        localStorage.removeItem("token");
-        // Clear the stores
-        loggedIn.update(() => false);
-        currentUser.update(() => null);
+    function gotoPublic () {
+        console.log(token)
+        goto(`/profile/${token}`)
     }
+
+    function setEdit (val) {
+        // State var
+        edit = val
+
+        // Buttons
+        editButton.disabled = val ? true : false
+        editButton.ariaDisabled = val ? 'true' : 'false'
+        publicButton.disabled = val ? false : true
+        publicButton.ariaDisabled = val ? 'false' : 'true'
+    }
+
 </script>
 
 <div class="container">
@@ -75,7 +78,7 @@
         <!-- If a user is currently logged in display their information -->
         {:else if isLoggedIn}
             {#if user && user.name}
-                <h1>Logged in as <code>{user.name}</code></h1>
+                <h1 class="loggedIn">Logged in as <code>{user.name}</code></h1>
             {:else}
                 <h1>Welcome!</h1>
             {/if}
@@ -88,17 +91,17 @@
             <p>Made by Kayt_was_taken! | <a href="https://github.com.kaytwastaken">GitHub</a> | <a href="https://kayt.dev">Personal site</a></p>
             
             <div class="switches">
-                <button aria-disabled="false">Edit your system</button>
-                <button disabled aria-disabled="true">View public information</button>
+                <button id="editButton" disabled={true} aria-disabled="true" on:click={() => {setEdit(true)}}>Edit your system</button>
+                <button id="publicButton" on:click={() => {setEdit(false)}}>View public information</button>
             </div>
-            <form on:submit|preventDefault={() => {login(token)}}>
-                <input type="text" name="input" placeholder="pk;token" bind:value={token}>
-                <label for="input">Enter your PluralKit token here. Use pk;token to get it.</label>
+            <form id="loginForm" on:submit|preventDefault={edit ? logUserIn : gotoPublic}>
+                <input id="formInput" type="text" name="input" placeholder={edit ? "pk;token" : "xxxxx"} bind:value={token}>
+                <label for="input">{edit ? "Enter your PluralKit token here. Use pk;token to get it." : "Enter a 5-letter system ID or 18-character Discord User ID"}</label>
                 <!-- If err state is saved, expose error to user -->
                 {#if err}
                     <p class="err">{err.code == '401' ? 'Invalid token.' + token : err.message}</p>
                 {/if}
-                <input disabled={token.length < 64 ? true : false} type="submit" class="submit">
+                <input disabled={edit ? (token.length != 64 ? true : false) : (token.length == 5 || token.length == 18 ? false : true)} type="submit" class="submit">
             </form>
         {/if}
     </div>
@@ -107,9 +110,7 @@
 
 <style lang='scss'>
     .container {
-        height: 90vh;
-        justify-content: center;
-        align-items: center;
+        height: 80vh;
     }
     .card {
         display: flex;
@@ -131,7 +132,13 @@
         font-size: medium;
     }
     button.loggedIn {
-        margin: 1rem 0 0 0;
+        width: 100%;
+        // width: 50%;
+        margin: 1rem auto 0 auto;
+    }
+    h1.loggedIn {
+        // width: 50%;
+        // margin: 0 auto 0 auto;
     }
     button:disabled {
         background: none;
@@ -151,8 +158,8 @@
         width: fit-content;
         background: $gray;
         border-radius: 7px 7px 0 0;
-        :last-child {
-            margin-left: 0;
+        :first-child {
+            margin-right: 0;
         }
         
     }

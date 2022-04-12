@@ -27,11 +27,11 @@ $text: #dddddc;
     background-color: $bg;
 }
 
-:global(a) {
+a {
     color: $orange;
 }
 
-:global(code) {
+code {
     color: $blue;
     font-family: monospace;
     background-color: $gray;
@@ -40,17 +40,18 @@ $text: #dddddc;
     font-size: .9em;
 }
 
-:global(p) {
+p {
     white-space:pre-wrap;
 }
 
 .container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 form {
-    margin-top: 0 !important;
     display: flex;
     flex-direction: column;
     * {
@@ -59,7 +60,7 @@ form {
 }
 input[type=text] {
     padding: .6rem;
-    margin: 0 0 .25rem 0;
+    margin: 0;
     border: 1px solid $text;
     border-radius: 5px;
     background: none;
@@ -85,4 +86,84 @@ input:disabled:hover {
 }
 input:disabled {
     opacity: .6;
+}
+
+// Scrollbar atyles
+
+:root::-webkit-scrollbar {
+    width: 10px;
+}
+
+:root::-webkit-scrollbar-track {
+    background-color: $gray-2;
+}
+
+:root::-webkit-scrollbar-thumb {
+    background: $gray;
+    
+}
+
+:root::-webkit-scrollbar-thumb:hover {
+    background: $gray-3;
+}
+
+
+// Media Query Mixins
+
+//Large Screen - 993 to 1170 screen size
+@mixin lg-screen{
+    @media only screen and (max-width: 1170px) {
+        @content;
+    }
+}
+
+//Medium Screen - 768 to 992 screen size
+@mixin md-screen{
+    @media only screen and (max-width: 992px) {
+        @content;
+    }
+}
+
+//Small Screen - 575 to 767 screen size
+@mixin sm-screen{
+    @media only screen and (max-width: 767px) {
+        @content;
+    }
+}
+
+//Extra Small Screen - below 575 screen size
+@mixin xs-screen{
+    @media only screen and (max-width: 575px) {
+        @content;
+    }
+}
+
+@mixin descending-width{
+    @include lg-screen {
+        width: 70vw;
+    }
+    @include md-screen {
+        width: 80vw;
+    }
+    @include sm-screen {
+        width: 85vw;
+    }
+    @include xs-screen {
+        width: 90vw;
+    }
+}
+
+@mixin descending-maximum{
+    @include lg-screen {
+        max-width: 70vw;
+    }
+    @include md-screen {
+        max-width: 80vw;
+    }
+    @include sm-screen {
+        max-width: 85vw;
+    }
+    @include xs-screen {
+        max-width: 90vw;
+    }
 }

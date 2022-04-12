@@ -43,7 +43,7 @@
         {#if members}
             <p>Members: {members.length}</p>
         {/if}
-        <div style="inline-size: 50%;">
+        <div>
             <p>
                 {system.description ?? "No description set"}
             </p>
@@ -61,6 +61,7 @@
         border-radius: .5rem;
         p {
             white-space: pre-wrap;
+            max-width: fit-content;
         }
         img {
             width: 50%;
@@ -75,11 +76,14 @@
         border-radius: .5rem;
         background: $gray;
         margin-bottom: 1rem;
-        // padding: 1rem;
-        // width: calc(70vw + 2rem);
+        width: 70vw;
+        max-width: 70vw;
+        @include descending-width;
+        @include descending-maximum;
     }
     .system {
-        width: 70vw;
+        max-width: 70vw;
+        @include descending-maximum;
         background: $gray;
         padding: 1rem;
         border-radius: .5rem;

@@ -73,18 +73,15 @@
     .tray {
         padding: 1rem;
         border-radius: .5rem;
-        p {
-        }
         img {
             width: 50%;
             border-radius: .5rem;
         }
-        span {
-            align-items: flex-start;
+        div {
+            margin-right: 2rem;
         }
         .detail {
-            display: grid;
-            grid-template-columns: auto auto auto;
+            display: flex;
         }
     }
     
@@ -98,6 +95,7 @@
     }
     .hr {
         width: 70vw;
+        @include descending-width;
         border-bottom: 3px solid $gray;
         margin: 1rem 0 2rem 0;
     }
@@ -105,9 +103,14 @@
         border-radius: .5rem;
         background: $gray;
         margin-bottom: 1rem;
+        width: 70vw;
+        max-width: 70vw;
+        @include descending-width;
+        @include descending-maximum;
     }
     .memberCard {
-        width: 70vw;
+        max-width: 70vw;
+        @include descending-maximum;
         background: $gray;
         padding: 1rem;
         border-radius: .5rem;

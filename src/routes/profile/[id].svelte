@@ -23,6 +23,7 @@
 
     // Reload page
     function retry() {
+        console.log(input)
         goto(`/profile/${input}`)
     }
 </script>
@@ -50,9 +51,6 @@
 </div>
 
 <style lang="scss">
-    .container {
-        align-items: center;
-    }
     h1 {
         width: 80vw;
         text-align: center;
@@ -65,12 +63,23 @@
     }
     label {
         margin: 1rem 0 0 0;
+        @include xs-screen {
+            width: 90%;
+            margin: 1rem auto 0 auto
+        }
     }
     input[type=text] {
         margin: 0 .5rem 0 0;
         width: calc(100% - 7rem);
+        @include xs-screen {
+            width: 60%;
+            margin: 0 .5rem 0 auto;
+        }
     }
     input[type=submit] {
         margin: 0;
+        @include xs-screen {
+            margin: 0 auto 0 auto;
+        }
     }
 </style>
