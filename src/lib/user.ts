@@ -5,7 +5,6 @@ export async function login(token) {
     // Try logging in using the token in memory and storing it in localStorage
     try {
         localStorage.setItem('token', token)
-        console.log("Token saved to localstorage")
         const res = await pk().systems('@me').get({ token })
         // Save currently logged in user to Svelte stores
         loggedIn.update(() => true)
@@ -16,7 +15,6 @@ export async function login(token) {
         console.error(error.message)
         // Nuke the token and stores
         localStorage.removeItem('token')
-        console.log("User token removed from localstorage")
         loggedIn.update(() => false)
         currentUser.update(() => null)
         return error

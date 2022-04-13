@@ -51,7 +51,6 @@
     }
 
     function gotoPublic () {
-        console.log(token)
         goto(`/profile/${token}`)
     }
 
@@ -69,7 +68,7 @@
 </script>
 
 <svelte:head>
-    <title>Pk-web</title>
+    <title>pk-web | kayt.dev</title>
 </svelte:head>
 
 <div class="container">
@@ -114,7 +113,7 @@
 
 <style lang='scss'>
     .container {
-        height: 80vh;
+        height: calc(100vh - 5rem - 3rem);
     }
     .card {
         display: flex;

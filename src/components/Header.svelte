@@ -11,7 +11,7 @@
     <span class="nav">
         <a href="/profile">Profile</a>
         <a href="/public">Public</a>
-        <a href="/" id="logout" on:click={() => {logout(); console.log('logout button?')}}>Logout</a>
+        <a href="/" id="logout" on:click={logout}>Logout</a>
     </span>
 </header>
 
@@ -28,9 +28,6 @@
             flex-direction: column;
             align-items: flex-start;
             margin-top: 1rem;
-            span:last-child {
-                margin-top: 1rem;
-            }
         }
     }
     a {
@@ -62,10 +59,22 @@
     span :last-child {
         margin-right: 0 !important;
     }
+    .home {
+        @include xs-screen {
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto auto auto;
+            justify-items: center;
+        }
+    }
     .nav {
         margin-left: auto;
         @include xs-screen {
             margin-left: 0;
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto auto auto;
+            justify-items: center;
         }
     }
 </style>

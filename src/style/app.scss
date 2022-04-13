@@ -22,7 +22,7 @@ $text: #dddddc;
     margin: 0;
     padding: 0;
     color: $text;
-    font-family: Raleway;
+    font-family: Raleway, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition-duration: 200ms;
 }
 
@@ -92,6 +92,7 @@ input:disabled:hover {
 }
 input:disabled {
     opacity: .6;
+    color: $text;
 }
 
 // Scrollbar atyles
@@ -148,6 +149,13 @@ input:disabled {
 @mixin xs-screen{
     @media only screen and (max-width: 575px) {
         @content;
+    }
+}
+
+// Extra Short Screen - below 540 screen size
+@mixin xsh-screen {
+    @media only screen and (max-height: 540px) {
+        @content
     }
 }
 

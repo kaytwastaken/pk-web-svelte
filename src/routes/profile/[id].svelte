@@ -23,7 +23,6 @@
 
     // Reload page
     function retry() {
-        console.log(input)
         goto(`/profile/${input}`)
     }
 </script>

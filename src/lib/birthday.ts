@@ -65,13 +65,10 @@ export function readable (dateString) {
 
 export function sendable (dateString) {
     let dateArray = dateString.split('-')
-    console.log(dateArray)
 
     if ( dateArray.length == 3 ) {
         if ( dateArray[0].length == 4 ) {
-            console.log(dateArray[0].length)
             if ( parseInt(dateArray[1]) < 13 && parseInt(dateArray[2]) < 32 ) {
-                console.log(dateString)
                 return dateString
             }
         }

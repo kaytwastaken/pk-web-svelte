@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Credits | pk-web</title>
+</svelte:head>
+
 <div class="container">
     <div class="cardHolder">
         <div class="card">
@@ -35,6 +39,9 @@
 </div>
 
 <style lang='scss'>
+    .container {
+        height: calc(100vh - 5rem - 3rem);
+    }
     .cardHolder {
         width: 50%;
         padding-bottom: 5rem;
@@ -65,6 +72,9 @@
     .grid {
         display: grid;
         grid-template-columns: auto auto auto auto;
+        @include xs-screen {
+            grid-template-columns: auto auto auto;
+        }
         margin-top: 1rem;
     }
     a {

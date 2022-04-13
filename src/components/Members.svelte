@@ -77,13 +77,13 @@
     {#if !edit}
         <div id={member.id} class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
-            <span>
+            <span class="memberHeader">
                 <img src={member.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
                 <!-- Vertical container -->
                 <div>
                     <!-- Horizontal container -->
                     <span>
-                        <h2>{member.name}</h2>
+                        <h2 class="name">{member.name}</h2>
                         <p>|</p>
                         <p>{member.display_name ?? "No display name set"}</p>
                     </span>
@@ -136,7 +136,7 @@
     
         <div id={member.id} class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
-            <span>
+            <span class="memberHeader">
                 <img src={mem.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
                 <!-- Vertical container -->
                 <div>
@@ -247,6 +247,7 @@
         display: flex;
         flex-direction: row;
     }
+    
 
     .container {
         align-items: center;
@@ -275,6 +276,9 @@
         h1, h2, h3 {
             margin: 0;
         }
+        h2.name {
+            line-break: anywhere;
+        }
         span {
             align-items: center;
             * {
@@ -283,6 +287,12 @@
         }
         .tray > span {
             align-items: flex-start;
+        }
+    }
+    .memberHeader {
+        @include xs-screen {
+            flex-direction: column;
+            align-items: flex-start !important;
         }
     }
     .err, .load {
@@ -294,24 +304,35 @@
     .load {
         color: $blue;
     }
-    .buttons {
+    .buttons, button {
         margin-left: auto;
         margin-right: 0 !important;
+        :last-child {
+            margin-left: 1rem;
+        }
         @include xs-screen {
             flex-direction: column;
+            margin-left: 0 !important;
+            margin-right: auto;
+            align-items: flex-start !important;
         }
-    }
-    button {
-        margin-left: auto;
     }
     #save {
         background-color: $green;
+        @include xs-screen {
+            position: relative;
+            top: 3rem;
+        }
     }
     #save:hover {
         background-color: $green-2;
     }
     #cancel {
         background-color: $red;
+        @include xs-screen {
+            position: relative;
+            top: -2.6rem;
+        }
     }
     #cancel:hover {
         background-color: $red-2;

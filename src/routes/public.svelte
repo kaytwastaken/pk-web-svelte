@@ -1,18 +1,16 @@
-<!-- <script lang="ts" context="module">
-    // Disable client side router to reload page on refetch
-    export const router = false
-</script> -->
-
 <script lang="ts">
     import { goto } from "$app/navigation";
     let input = ''
 
     // Reload page
     function retry() {
-        // console.log(input)
         goto(`/profile/${input}`)
     }
 </script>
+
+<svelte:head>
+    <title>View public information | pk-web</title>
+</svelte:head>
 
 <div class="container">
     <div>
@@ -28,6 +26,7 @@
     .container {
         height: 80vh;
         max-width: 100vw;
+        height: calc(100vh - 5rem - 3rem);
     }
     form {
         margin-top: 1rem;
@@ -41,5 +40,11 @@
     }
     input[type=submit] {
         margin: 0 0 0 1rem
+    }
+    h1 {
+        @include md-screen {
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
     }
 </style>

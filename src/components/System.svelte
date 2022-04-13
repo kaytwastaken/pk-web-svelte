@@ -51,7 +51,7 @@
 <div class="cardHolder" style="border-bottom: {system.color ? `3px solid #${sys.color}` : 'none'};">
     {#if !edit}
         <div class="system" on:click={expandTray}>
-            <span>
+            <span class="systemHeader">
                 <img src={system.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
                 <div>
                     <span>
@@ -92,12 +92,12 @@
         </div>
     {:else}
         <div class="system">
-            <span>
+            <span class="systemHeader">
                 <img src={sys.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
                 
                 <div>
                     <span>
-                        <h1>{sys.name}</h1>
+                        <h1 class="name">{sys.name}</h1>
                         <p>|</p>
                         <p>{sys.tag}</p>
                     </span>
@@ -194,6 +194,12 @@
         padding: 1rem;
         border-radius: .5rem;
     }
+    .systemHeader {
+        @include xs-screen {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+    }
     h1.name {
         line-break: anywhere;
         @include md-screen {
@@ -215,15 +221,18 @@
             }
         }
 
-    .buttons {
+    .buttons, button {
         margin-left: auto;
         margin-right: 0 !important;
+        :last-child {
+            margin-left: 1rem;
+        }
         @include xs-screen {
             flex-direction: column;
+            margin-left: 0 !important;
+            margin-right: auto;
+            align-items: flex-start !important;
         }
-    }
-    button {
-        margin-left: auto;
     }
     #save {
         background-color: $green;

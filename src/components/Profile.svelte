@@ -31,13 +31,11 @@
 
     const memberFetch = async () => {
         members = await pk().systems(id).members.get({ token })
-        console.log("Members loaded from API call") 
     }
     const systemFetch = async () => {
         if ( user != null && needAuth == true ) { system = user }
         else { system = await pk().systems(id).get({ token }) }
         systemName = system.name
-        console.log( ((user != null && needAuth == true) ? "User loaded from Svelte store" : "User loaded from API call") )
     }
     
     let systemPromise = systemFetch()
@@ -55,7 +53,7 @@
 </script>
 
 <svelte:head>
-    <title>{systemName ?? "Loading..."} | Pk-web</title>
+    <title>{systemName ?? "Loading..."} | pk-web</title>
 </svelte:head>
 
 <div class="container">    

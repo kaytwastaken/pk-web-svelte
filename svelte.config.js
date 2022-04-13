@@ -1,4 +1,5 @@
-import adapter from '@sveltejs/adapter-auto';
+// import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -10,9 +11,19 @@ const config = {
 			prependData: `@import './src/style/app.scss';`
 		} 
 	}),
+	onwarn: (warning, handler) => {
+        const { code } = warning;
+        if (code === "css-unused-selector")
+            return;
+
+        handler(warning);
+    },
 
 	kit: {
-		adapter: adapter()
+		adapter: adapter({
+			out: 'build',
+			envPrefix: 'PROD_'
+		})
 	}
 };
 
