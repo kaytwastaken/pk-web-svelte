@@ -24,7 +24,5 @@
 {/if}
 
 <style lang="scss">
-    .container {
-        align-items: center;
-    }
+    
 </style>

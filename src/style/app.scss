@@ -6,7 +6,10 @@ $gray: #3c3d3c;
 $blue: #309695;
 $blue-secondary: #1f6362;
 $orange: #f26430;
-$red: #f23030;
+$red: #da4a4a;
+    $red-2: #ad3636;
+$green: #2a8b49;
+    $green-2: #23693a;
 $text: #dddddc;
 
 @font-face {
@@ -65,7 +68,7 @@ input[type=text] {
     border-radius: 5px;
     background: none;
 }
-input[type=submit] {
+input[type=submit], button {
     width: 5rem;
     background: $blue;
     margin: .25rem 0 .25rem 0;
@@ -76,7 +79,10 @@ input[type=submit] {
     font-weight: bold;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-input[type=submit]:hover {
+button {
+    width: unset;
+}
+input[type=submit]:hover, button:hover {
     cursor: pointer;
     background: $blue-secondary;
 }
@@ -109,6 +115,13 @@ input:disabled {
 
 
 // Media Query Mixins
+
+//Extra Large Screen - 1171 to 1440 screen size
+@mixin xl-screen{
+    @media only screen and (max-width: 1440px) {
+        @content;
+    }
+}
 
 //Large Screen - 993 to 1170 screen size
 @mixin lg-screen{

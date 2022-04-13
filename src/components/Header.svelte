@@ -4,8 +4,9 @@
 
 <header>
     <span class="home">
-        <a href="/">pk-web</a>
-        <a href="https://github.com/Kaytwastaken/pk-web-svelte" id="source" target="_blank">Source code</a>
+        <a href="/">pk-web-<em>svelte</em></a>
+        <a href="/credits">Open source credits</a>
+        <a href="https://github.com/Kaytwastaken/pk-web-svelte" class="external" target="_blank">Source code</a>
     </span>
     <span class="nav">
         <a href="/profile">Profile</a>
@@ -26,12 +27,10 @@
         @include xs-screen {
             flex-direction: column;
             align-items: flex-start;
-            // padding-left: ;
-        }
-    }
-    h1 {
-        small {
-            font-size: 1rem;
+            margin-top: 1rem;
+            span:last-child {
+                margin-top: 1rem;
+            }
         }
     }
     a {
@@ -48,9 +47,11 @@
         color: $red;
         border-bottom-color: $red;
     }
-    a#source:hover{
-        // color: $blue;
+    a.external:hover{
         border-bottom-color: $orange;
+    }
+    em {
+        color: $orange
     }
     span {
         height: 3rem;

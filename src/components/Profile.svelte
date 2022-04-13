@@ -2,45 +2,46 @@
     export let token
     export let id:string
     
-    import { loggedIn, currentUser } from '../stores';
+    import { currentUser } from '../stores';
     import type { System, Member } from '../lib/types'
     import pk from '../lib/pk'
     import { goto } from '$app/navigation';
 
     import SystemCard from './System.svelte'
     import MemberCard from './Members.svelte'
-
-    let system:System
-    let systemName
-    let members:Array<Member>
-        
-    let user
-
+    
     // Subcribe to the currentUser store
+    let user
     currentUser.subscribe(value => {
         user = value
     })
 
-    // If no token is passed (for public info) set auth to false
-    let auth = true
+    // If no token is passed (for public info) set needAuth to false and pass {auth:false}
+    let needAuth = true
     if (!token) {
+        // Set token to the {auth:false} object to fetch public information
         token = {auth:false}
-        auth = false
+        needAuth = false
     }
 
     // Define functions to fetch info
+    let system:System
+    let systemName
+    let members:Array<Member>
+
     const memberFetch = async () => {
         members = await pk().systems(id).members.get({ token })
+        console.log("Members loaded from API call") 
     }
     const systemFetch = async () => {
-        if ( user != null && auth == true ) { system = user }
+        if ( user != null && needAuth == true ) { system = user }
         else { system = await pk().systems(id).get({ token }) }
         systemName = system.name
+        console.log( ((user != null && needAuth == true) ? "User loaded from Svelte store" : "User loaded from API call") )
     }
-
-    // Map functions to promise aliases to be used when reloading page content
-    let memberPromise = memberFetch()
+    
     let systemPromise = systemFetch()
+    let memberPromise = memberFetch()
 
     // Reload info using promise aliases
     function reload(id = null) {
@@ -54,15 +55,14 @@
 </script>
 
 <svelte:head>
-    <title>{systemName} | Pk-web</title>
+    <title>{systemName ?? "Loading..."} | Pk-web</title>
 </svelte:head>
 
 <div class="container">    
-    <!-- Wait for system info to return -->
     {#await systemPromise}
         <h1>Loading system...</h1>
     {:then} 
-        <SystemCard system={system} members={members}></SystemCard>
+        <SystemCard system={system} members={members} needAuth={needAuth}></SystemCard>
     {/await}
 
     <span class="hr"></span>
@@ -70,16 +70,14 @@
     <!-- Wait for member info to return -->
     {#await memberPromise}
         <h1>Loading members...</h1>
-        {:then}
-        <!-- Map each member to a card -->
+    {:then}
         <div class="members">
             {#each members as member}
-                <MemberCard member={member} auth={auth}></MemberCard>
+                <MemberCard member={member} needAuth={needAuth}></MemberCard>
             {/each}
         </div>
     
-        <!-- Return the error -->
-        {:catch error}
+    {:catch error}
         <h1 class="err" style="text-align: center;">{error.code == 429 ? 'Too many requests, try again.' : `${error.message}`}</h1>
         <form on:submit|preventDefault={error.code == 429 ? () => {reload()} : () => {reload(id)}}>
             <input
@@ -89,7 +87,7 @@
             >
             <input
                 type="submit"
-                disabled={id.length != 5 && id.length != 18 && error.code != 429}
+                disabled={id.length != 5 && id.length != 18 && error.code != 429 && error.code != 500}
                 style="display: {error.code == 403 || error.code == 404 ? 'none' : 'unset'};"
             >
         </form>

@@ -68,6 +68,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Pk-web</title>
+</svelte:head>
+
 <div class="container">
     <div class="card">
         <!-- If the loading state is true, return loading state header -->
@@ -88,7 +92,7 @@
         <!-- If no user is saved, show the log in -->
         {:else}
             <h1>PluralKit web interface :D</h1>
-            <p>Made by Kayt_was_taken! | <a href="https://github.com.kaytwastaken">GitHub</a> | <a href="https://kayt.dev">Personal site</a></p>
+            <p>Made by Kayt_was_taken! | <a href="https://github.com/Kaytwastaken">GitHub</a></p>
             
             <div class="switches">
                 <button id="editButton" disabled={true} aria-disabled="true" on:click={() => {setEdit(true)}}>Edit your system</button>
@@ -116,6 +120,18 @@
         display: flex;
         flex-direction: column;
         width: 40%;
+        @include lg-screen {
+            width: 50%
+        }
+        @include md-screen {
+            width: 60%;
+        }
+        @include sm-screen {
+            width: 70%;
+        }
+        @include xs-screen {
+            width: 80%;
+        }
     }
     a {
         width: min-content;
@@ -135,10 +151,6 @@
         width: 100%;
         // width: 50%;
         margin: 1rem auto 0 auto;
-    }
-    h1.loggedIn {
-        // width: 50%;
-        // margin: 0 auto 0 auto;
     }
     button:disabled {
         background: none;

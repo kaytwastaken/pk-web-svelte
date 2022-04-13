@@ -9,6 +9,10 @@ const noop = () => {}
 // Proxy object docs
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
 
+// Method schema
+// pk()            .systems(id)            .members       .get({ token })
+// Initialize proxy.target systems(with id).target members.method({ token })
+
 // Export defaul function to be imported from '$lib/pk'
 export default function() {
     // Empty route
@@ -24,6 +28,7 @@ export default function() {
                     method: name,
                     headers: {
                         authorization: token ?? (auth ? localStorage.getItem("pk-token") : undefined),
+                        "content-type": name == "get" ? undefined : "application/json"
                     },
                     data: !!data ? JSON.stringify(data) : undefined,
                     validateStatus: () => true,

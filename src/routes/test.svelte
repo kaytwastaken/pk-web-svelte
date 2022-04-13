@@ -1,26 +1,33 @@
 <script lang="ts">
-import pk from '../lib/pk'
 
-const token = 'xdosjkvQOKGULJFay7p22H7ONsUBCezuRnZS9vj2ubhebRuwCif4fSqpDVscjF4N'
-let sys
-let members
+import { readable, sendable } from '$lib/birthday'
 
-async function doTheFetch() {
-    sys = await pk().systems('606866973120397483').get({ token })
-    members = await pk().systems('606866973120397483').members.get({ token })
+let date
+let dateString
+let input
+
+function readableDate () {
+    try {
+        return readable(input)
+    } catch (error) {
+        return error
+    }
 }
+
+function sendableDate () {
+    try {
+        return sendable(input)
+    } catch (error) {
+        return error
+    }
+}
+
 </script>
 
-<form on:submit|preventDefault={doTheFetch}>
+<form on:submit|preventDefault={() => {date = readableDate(); dateString = sendableDate()}}>
+    <input type="text" name="" id="" bind:value={input} style="color: red">
     <input type="submit" class="submit">
 </form>
-{#if sys === undefined || members === undefined}
-<!-- {#if sys === undefined} -->
-    <h1>Loading . . .</h1>  
-{:else}
-    <h1>{sys.name}</h1>
-    <p>{members.length} members</p>
-    {#each members as member}
-        <h2>{member.name}</h2>
-    {/each}
-{/if}
+
+<h1>{date}</h1>
+<h2>{dateString}</h2>
