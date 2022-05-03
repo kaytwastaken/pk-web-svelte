@@ -1,20 +1,14 @@
 <script lang=ts>
-    function expandTodo () {
-        document.getElementById(`todo`).classList.toggle('hidden')
-    }
+    // Use this if i want to add a todo on the website
+    // function expandTodo () {
+    //     document.getElementById(`todo`).classList.toggle('hidden')
+    // }
 </script>
 
 <footer>
-    <!-- <div id="todo" class="hidden">
-        <h3>Todo for v0.1.0</h3>
-        <li>Add/delete members</li>
-        <li>Editing proxies</li>
-        <li>Editing privacy</li>
-    </div> -->
     <span>
-        <a href="https://kayt.dev" class="external">kayt.dev</a>
-        <p on:click={expandTodo}>v0.1.0-beta</p>
-        <!-- id="todoLink" -->
+        <a href="https://kayt.dev" class="external" target="_blank">kayt.dev</a>
+        <p class="gray">v0.1.0</p>
     </span>
 </footer>
 
@@ -45,7 +39,9 @@ $header-space: 4rem;
     a.external:hover{
         border-bottom-color: $orange;
     }
-
+    .gray {
+        color: $gray;
+    }
     em {
         color: $orange
     }

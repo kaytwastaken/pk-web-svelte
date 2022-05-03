@@ -8,7 +8,7 @@
     import type { Member, WriteMember } from '$lib/types'
     import Privacy from './Privacy.svelte'
     import pk from '$lib/pk';
-    import { readable, sendable } from '$lib/birthday'
+    import { readable, validate as validateDOB } from '$lib/birthday'
 
     let token
     let edit = false
@@ -24,7 +24,7 @@
         avatar_url: member.avatar_url,
         banner: member.banner,
         description: member.description,
-        // proxy_tags: Array<ProxyTag>,
+        proxy_tags: member.proxy_tags,
         // privacy: MemPrivacy,
     }
 
@@ -38,42 +38,85 @@
         }
     }
 
+    // Validate member data before sending API call
+    function validate () {
+        // Validate DOB w function from $lib/birthday.ts
+        if ( mem.birthday ) {
+            try {
+                validateDOB(mem.birthday)
+            } catch (error) {
+                err = error
+                loading = false
+                throw err
+            }
+        }
+        if ( mem.color ) {
+            // Check against a valid 6-character hex regex
+            if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(mem.color) ) {
+                // ✨ regexes :D
+                err = new Error("Please enter a valid hex color code")
+                loading = false
+                throw err
+            }
+            // Return without the # if neccessary
+            if ( mem.color.slice(0,1) == '#' ) {
+                mem.color = mem.color.slice(1,7)
+            }
+
+        }
+    }
+
     async function toggleEdit (cancel = false) {
         err = undefined
+        // If not currently editing, set to edit mode
         if (!edit) {
             edit = true
+        // If cancel=true is passed, set edit to false
         } else {
+            // If cancel=false validate and send
             if (!cancel) {
                 loading = true
                 
-                if ( mem.birthday ) {
-                    try {
-                        mem.birthday = sendable(mem.birthday)
-                    } catch (error) {
-                        err = error
-                        loading = false
-                        return
-                    }
+                // Validate member data
+                try {
+                    validate()
+                } catch (error) {
+                    err = error
+                    loading = false
+                    return
                 }
                 
                 // Save information to PK with a patch request
                 await pk().members(member.id).patch({data: mem, token: token})
                 // Reassign member to the response from a new API call to update information
                 member = await pk().members(member.id).get({ token })
-                edit = false
                 
+                // Exit edit mode
+                edit = false
                 loading = false
                 return
             }
+            // If cancel = true exit edit mode
             edit = false
         }
     }
 
+    function deleteProxy (index) {
+        // Delete the specified proxy object and update the objects
+        mem.proxy_tags.splice(index, 1)
+        mem.proxy_tags = mem.proxy_tags
+    }
+
+    function addProxy () {
+        // Create a blank proxy object and update the objects
+        mem.proxy_tags.push({prefix: '', suffix: ''})
+        mem.proxy_tags = mem.proxy_tags
+    }
     
 </script>
 
 <!-- Return a div to be used in {#each} block on the profile page -->
-<div class="cardHolder" style="border-bottom: {member.color ? `3px solid #${mem.color}` : 'none'};">
+<div class="cardHolder" style="border-bottom: {mem.color ? `3px solid #${mem.color}` : 'none'};">
     {#if !edit}
         <div id={member.id} class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
@@ -111,14 +154,12 @@
                 <p>Display name: {member.display_name ?? "N/A"}</p>
                 <p>Birthday: {member.birthday ? readable(member.birthday) : "N/A"}</p>
                 <p>Pronouns: {member.pronouns ?? "N/A"}</p>
-                <p>Color: {member.color ?? "N/A"}</p>
+                <span><p>Color: {member.color ?? "N/A"}</p> <span id='swatch' style="background-color: #{member.color};"></span></span>
             </div>
             <span class="detail">
                 <div>
                     Description:
-                    <p>
-                        {member.description ?? "No description set"}
-                    </p>
+                    <p>{member.description ?? "No description set."}</p>
                 </div>
                 <div>
                     <p>Proxies:</p>
@@ -172,6 +213,7 @@
                 <span> <p>Birthday: </p> <input type="text" name="dob" id="dob" placeholder={member.birthday ?? "Birthday (yyyy-mm-dd or mm-dd)"} bind:value={mem.birthday}> </span>
                 <span> <p>Pronouns: </p> <input type="text" name="prns" id="prns" placeholder={member.pronouns ?? "Pronouns"} bind:value={mem.pronouns}> </span>
                 <span> <p>Color: </p> <input type="text" name="color" id="color" placeholder={member.color ?? "Color"} bind:value={mem.color}> </span>
+                <span id='swatch-edit' style="background-color: #{mem.color};"></span>
                 <span> <p>Avatar URL: </p> <input type="text" name="pfp" id="pfp" placeholder={member.avatar_url ?? "Avatar URL"} bind:value={mem.avatar_url}> </span>
                 <img src={mem.avatar_url} alt="" height="64px">
                 <span> <p>Banner URL: </p> <input type="text" name="banner" id="banner" placeholder={member.banner ?? "Banner URL"} bind:value={mem.banner}> </span>
@@ -186,9 +228,16 @@
                 </div>
                 <div>
                     <p>Proxies:</p>
-                    {#each member.proxy_tags as proxy}
-                        <p>{proxy.prefix ?? ""} text {proxy.suffix ?? ""}</p>
+                    {#each mem.proxy_tags as proxy, index}
+                        <span class="proxy-tag" id={`proxy-${index}`}>
+                            <input type="text"  name="prefix" id="pre" placeholder="Prefix" bind:value={proxy.prefix}>
+                            <p>text</p>
+                            <input type="text" name="suffix" id="suf" placeholder="Suffix" bind:value={proxy.suffix}>
+                            <button on:click={() => {deleteProxy(index)}}>✖</button>
+                        </span>
                     {/each}
+                    <button on:click={addProxy}>New</button>
+
                 </div>
                 {#if needAuth}
                     <Privacy member={member}/>
@@ -232,6 +281,16 @@
         div {
             margin-right: 2rem;
         }
+        #swatch, #swatch-edit {
+            margin: auto 0 2px .5rem;
+            display: block;
+            width:3rem;
+            height: calc(1rem - 4px);
+            border-radius: 9999px;
+        }
+        #swatch-edit {
+            margin: -1rem auto calc(1rem - 12px) 0;
+        }
         .detail {
             display: flex;
             @include sm-screen {
@@ -241,6 +300,7 @@
                 }
             }
         }
+        
     }
     
     span {
@@ -285,6 +345,7 @@
                 margin-right: .5rem;
             }
         }
+        
         .tray > span {
             align-items: flex-start;
         }
@@ -355,6 +416,20 @@
         }
         @include xs-screen {
             margin-right: 1% !important;
+        }
+    }
+    .proxy-tag {
+        align-items: center;
+        input {
+            margin: 5px !important;
+        }
+        :first-child {
+            margin-left: 0px !important;
+        }    
+        button {
+            background-color: $red;
+        } :hover {
+        background-color: $red-2;
         }
     }
     textarea {

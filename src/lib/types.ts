@@ -74,7 +74,7 @@ export interface WriteMember {
     avatar_url: string
     banner: string
     description: string
-    proxy_tags?: Array<ProxyTag>
+    proxy_tags: Array<ProxyTag>
     // keep_proxy: boolean
     privacy?: MemPrivacy
 }

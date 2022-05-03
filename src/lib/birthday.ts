@@ -1,3 +1,5 @@
+const dateRegex = /[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}-[0-9]{2}|0004-[0-9]{2}-[0-9]{2}/
+
 function month (num) {
     try {
         switch (num) {
@@ -63,20 +65,24 @@ export function readable (dateString) {
     }
 }
 
-export function sendable (dateString) {
-    let dateArray = dateString.split('-')
+export function validate (dateString) {
+    // let dateArray = dateString.split('-')
 
-    if ( dateArray.length == 3 ) {
-        if ( dateArray[0].length == 4 ) {
-            if ( parseInt(dateArray[1]) < 13 && parseInt(dateArray[2]) < 32 ) {
-                return dateString
-            }
-        }
-    } else if ( dateArray.length == 2 ) {
-        if ( parseInt(dateArray[0]) < 13 && parseInt(dateArray[1]) < 32 ) {
-            return `0004-${dateString}`
-        }
-    } else {
-        throw new Error("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
+    // if ( dateArray.length == 3 ) {
+    //     if ( dateArray[0].length == 4 ) {
+    //         if ( parseInt(dateArray[1]) < 13 && parseInt(dateArray[2]) < 32 ) {
+    //             return dateString
+    //         }
+    //     }
+    // } else if ( dateArray.length == 2 ) {
+    //     if ( parseInt(dateArray[0]) < 13 && parseInt(dateArray[1]) < 32 ) {
+    //         return `0004-${dateString}`
+    //     }
+    // } else {
+    //     throw new Error("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
+    // }
+
+    if ( !dateRegex.test(dateString) ) {
+        throw new Error ("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
     }
 }
