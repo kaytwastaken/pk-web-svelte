@@ -25,7 +25,7 @@
         banner: member.banner,
         description: member.description,
         proxy_tags: member.proxy_tags,
-        // privacy: MemPrivacy,
+        privacy: member.privacy,
     }
 
     onMount(() => {
@@ -64,6 +64,10 @@
             }
 
         }
+        for ( let prop in mem.privacy ) {
+            mem.privacy[prop] = mem.privacy[prop] ? 'public' : 'private'
+            console.log(mem.privacy[prop])
+        }
     }
 
     async function toggleEdit (cancel = false) {
@@ -86,6 +90,8 @@
                     return
                 }
                 
+                // Test data log
+                console.log(mem.privacy)
                 // Save information to PK with a patch request
                 await pk().members(member.id).patch({data: mem, token: token})
                 // Reassign member to the response from a new API call to update information
@@ -168,7 +174,7 @@
                     {/each}
                 </div>
                 {#if needAuth}
-                    <Privacy member={member}/>
+                    <Privacy edit={edit} mem={mem}/>
                 {/if}
             </span>
         </div>
@@ -240,7 +246,7 @@
 
                 </div>
                 {#if needAuth}
-                    <Privacy member={member}/>
+                    <Privacy edit={edit} mem={mem}/>
                 {/if}
             </span>
         </div>

@@ -1,7 +1,4 @@
 <script lang="ts" context="module">
-    // Disable client side router to reload page on refetch
-    export const router = false
-    
     // Load params from URL
     export async function load({ params }) {
         return {
@@ -27,27 +24,32 @@
     }
 </script>
 
-<div class="container">
-    <!-- If params is not a 5 character id or discord id then return warning and resubmit form --> 
-    {#if params.id.length != 5 && params.id.length != 18}
-        <h1>Please enter a 5-letter system ID or an 18 character Discord User ID</h1>
-        <form on:submit|preventDefault={retry}>
-            <input type="text" name="input" placeholder="System ID" bind:value={input}>
-            <input disabled={input.length != 5 && input.length != 18} type="submit" class="submit">
-        </form>
-    <!-- Else load the normal resubmit form -->
-    {:else}
-        <form on:submit|preventDefault={retry}>
-            <label for="input">Load a different system with its 5-letter id or an 18 character Discord User ID</label>
-            <span>
+<!-- Use key block to force rerender on params change :D -->
+<!-- https://www.reddit.com/r/sveltejs/comments/u7tvzi/any_way_to_force_a_complete_rerender/ -->
+<!-- https://svelte.dev/docs#template-syntax-key -->
+{#key params}
+    <div class="container">
+        <!-- If params is not a 5 character id or discord id then return warning and resubmit form --> 
+        {#if params.id.length != 5 && params.id.length != 18}
+            <h1>Please enter a 5-letter system ID or an 18 character Discord User ID</h1>
+            <form on:submit|preventDefault={retry}>
                 <input type="text" name="input" placeholder="System ID" bind:value={input}>
                 <input disabled={input.length != 5 && input.length != 18} type="submit" class="submit">
-            </span>
-        </form>
-        <!-- Load the profile component -->
-        <Profile id={params.id} token={null}/>
-    {/if}
-</div>
+            </form>
+        <!-- Else load the normal resubmit form -->
+        {:else}
+            <form on:submit|preventDefault={retry}>
+                <label for="input">Load a different system with its 5-letter id or an 18 character Discord User ID</label>
+                <span>
+                    <input type="text" name="input" placeholder="System ID" bind:value={input}>
+                    <input disabled={input.length != 5 && input.length != 18} type="submit" class="submit">
+                </span>
+            </form>
+            <!-- Load the profile component -->
+            <Profile id={params.id} token={null}/>
+        {/if}
+    </div>
+{/key}
 
 <style lang="scss">
     h1 {

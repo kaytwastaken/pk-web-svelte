@@ -76,5 +76,5 @@ export interface WriteMember {
     description: string
     proxy_tags: Array<ProxyTag>
     // keep_proxy: boolean
-    privacy?: MemPrivacy
+    privacy: MemPrivacy
 }
