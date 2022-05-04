@@ -6,10 +6,13 @@
     import type { System, WriteSystem, Member } from '$lib/types'
     import dateFormat from 'dateformat'
     import pk from '$lib/pk';
+    import Privacy from './SystemPrivacy.svelte'
     import { onMount } from 'svelte';
 
     let token
     let edit = false
+    let err
+    let loading = false
 
     let sys:WriteSystem = {
         name: system.name,
@@ -19,7 +22,7 @@
         banner: system.banner,
         color: system.color,
         pronouns: system.pronouns,
-        // privacy: SysPrivacy
+        privacy: system.privacy
     }
 
     onMount(() => {
@@ -30,16 +33,56 @@
         document.getElementById(`${system.id}-tray`).classList.toggle('hidden')
     }
 
+    function validate () {
+        if ( sys.color ) {
+            // Check against a valid 6-character hex regex
+            if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(sys.color) ) {
+                // ✨ regexes :D
+                err = new Error("Please enter a valid hex color code")
+                loading = false
+                throw err
+            }
+            // Return without the # if neccessary
+            if ( sys.color.slice(0,1) == '#' ) {
+                sys.color = sys.color.slice(1,7)
+            }
+
+        }
+        for ( let prop in sys.privacy ) {
+            sys.privacy[prop] = sys.privacy[prop] ? 'public' : 'private'
+            console.log(sys.privacy[prop])
+        }
+    }
+    
     async function toggleEdit (cancel = false) {
+        err = undefined
+        // If not currently editing, set to edit mode
         if (!edit) {
             edit = true
+        // If cancel=true is passed, set edit to false
         } else {
+            // If cancel=false validate and send
             if (!cancel) {
+                loading = true
+                
+                // Validate system data
+                try {
+                    validate()
+                } catch (error) {
+                    err = error
+                    loading = false
+                    return
+                }
+                
                 // Save information to PK with a patch request
                 await pk().systems('@me').patch({ data: sys, token: token})
                 // Reassign system to a new API call to get updated information
                 system = await pk().systems('@me').get({ token })
+                
+                // Exit edit mode
                 edit = false
+                loading = false
+                return
             }
             edit = false
         }
@@ -83,12 +126,17 @@
             <p>Name: {system.name ?? "N/A"}</p>
             <p>Tag: {system.tag ?? "N/A"}</p>
             <p>Pronouns: {system.pronouns ?? "N/A"}</p>
-            <p>Color: {system.color ?? "N/A"}</p>
-            <div>
-                <p>
-                    {system.description ?? "No description set"}
-                </p>
-            </div>
+            <span><p>Color: {system.color ?? "N/A"}</p> <span id='swatch' style="background-color: #{system.color};"></span></span>
+            <span class="detail">
+                <div>
+                    <p>
+                        {system.description ?? "No description set"}
+                    </p>
+                </div>
+                {#if needAuth}
+                    <Privacy edit={edit} sys={sys}/>
+                {/if}
+            </span>
         </div>
     {:else}
         <div class="system">
@@ -119,22 +167,31 @@
             </span>
         </div>
         <div class="tray" id="{system.id}-tray">
+            <p class="err">{err ?? ""}</p>
+            <p class="load">{loading ? "Loading..." : ""}</p>
+
             <p class="editField">Registered: <code>{dateFormat(system.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(system.created, "h:MM:ss TT")}</code></p>
             {#if members}
             <p>Members: {members.length}</p>
             {/if}
-            <span> <p>Name: </p> <input type="text" name="name" id="name" placeholder={system.name ?? "System name"} bind:value={sys.name}> </span>
-            <span> <p>Tag: </p> <input type="text" name="tag" id="tag" placeholder={system.tag ?? "System tag"} bind:value={sys.tag}> </span>
-            <span> <p>Pronouns: </p> <input type="text" name="prns" id="prns" placeholder={system.pronouns ?? "System pronouns"} bind:value={sys.pronouns}> </span>
-            <span> <p>Color: </p> <input type="text" name="color" id="color" placeholder={system.color ?? "System color"} bind:value={sys.color}> </span>
-            <span> <p>Avatar URL: </p> <input type="text" name="pfp" id="pfp" placeholder={system.avatar_url ?? "System avatar URL"} bind:value={sys.avatar_url}> </span>
+            <span> <p>Name: </p> <input type="text" name="name" id="name" placeholder={sys.name ?? "System name"} bind:value={sys.name}> </span>
+            <span> <p>Tag: </p> <input type="text" name="tag" id="tag" placeholder={sys.tag ?? "System tag"} bind:value={sys.tag}> </span>
+            <span> <p>Pronouns: </p> <input type="text" name="prns" id="prns" placeholder={sys.pronouns ?? "System pronouns"} bind:value={sys.pronouns}> </span>
+            <span> <p>Color: </p> <input type="text" name="color" id="color" placeholder={sys.color ?? "System color"} bind:value={sys.color}> </span>
+            <span id='swatch-edit' style="background-color: #{sys.color};"></span>
+            <span> <p>Avatar URL: </p> <input type="text" name="pfp" id="pfp" placeholder={sys.avatar_url ?? "System avatar URL"} bind:value={sys.avatar_url}> </span>
             <img src={sys.avatar_url} alt="" height="64px">
-            <span> <p>Banner URL: </p> <input type="text" name="banner" id="banner" placeholder={system.banner ?? "System banner URL"} bind:value={sys.banner}> </span>
+            <span> <p>Banner URL: </p> <input type="text" name="banner" id="banner" placeholder={sys.banner ?? "System banner URL"} bind:value={sys.banner}> </span>
             <img class="banner" src={sys.banner} alt="">
-            <div>
-                <p style="margin-top: 1rem;">Description:</p>
-                <textarea name="desc" id="desc" bind:value={sys.description}/>
-            </div>
+            <span class="detail">
+                <div>
+                    <p style="margin-top: 1rem;">Description:</p>
+                    <textarea name="desc" id="desc" bind:value={sys.description}/>
+                </div>
+                {#if needAuth}
+                    <Privacy edit={edit} sys={sys}/>
+                {/if}
+            </span>
         </div>
     {/if}
 </div>
@@ -149,7 +206,7 @@
         border-radius: .5rem;
         p {
             white-space: pre-wrap;
-            max-width: fit-content;
+            // max-width: fit-content;
         }
         .banner {
             width: 50%;
@@ -172,6 +229,27 @@
         }
         img {
             margin-bottom: 1rem;
+        }
+        #swatch, #swatch-edit {
+            margin: auto 0 2px .5rem;
+            display: block;
+            width:3rem;
+            height: calc(1rem - 4px);
+            border-radius: 9999px;
+        }
+        #swatch-edit {
+            margin: -.5rem auto calc(1rem - 20px) 0;
+        }
+        .detail {
+            margin-top: 1rem;
+            display: flex;
+            align-items: flex-start;
+            @include sm-screen {
+                flex-direction: column;
+                div {
+                    margin-bottom: 1rem;
+                }
+            }
         }
     }
     
@@ -212,15 +290,24 @@
             font-size: medium;
         }
     }
+    
     span {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            * {
-                margin-right: .5rem !important;
-            }
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        * {
+            margin-right: .5rem !important;
         }
-
+    }
+    .err, .load {
+        margin-bottom: 1rem;
+    }
+    .err {
+        color: $red;
+    }
+    .load {
+        color: $blue;
+    }
     .buttons, button {
         margin-left: auto;
         margin-right: 0 !important;
@@ -268,24 +355,24 @@
     }
     textarea {
         height: 20rem;
-        width: 50%;
+        width: 40rem;
         background-color: $gray-3;
         font-size: medium;
         padding: .5rem;
         @include xl-screen {
-            width: 60%;
+            width: 30rem;
         }
         @include lg-screen {
-            width: 70%;
+            width: 25rem;
         }
         @include md-screen {
-            width: 80%;
+            width: 20rem;
         }
-        @include sm-screen {
-            width: 90%;
-        }
+        // @include sm-screen {
+        //     width: 15rem;
+        // }
         @include xs-screen {
-            width: 95%;
+            width: 100%;
         }
     }
     .system:hover {

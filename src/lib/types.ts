@@ -2,10 +2,11 @@
 
 export type SysPrivacy ={
     description_privacy: string
+    pronoun_privacy: string
     member_list_privacy: string
     group_list_privacy: string
     front_privacy: string
-    front_history_provacy: string
+    front_history_privacy: string
 }
 
 export type System = {

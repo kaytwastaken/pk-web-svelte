@@ -6,7 +6,7 @@
     import { onMount } from 'svelte';
     // Mine :)
     import type { Member, WriteMember } from '$lib/types'
-    import Privacy from './Privacy.svelte'
+    import Privacy from './MemberPrivacy.svelte'
     import pk from '$lib/pk';
     import { readable, validate as validateDOB } from '$lib/birthday'
 
@@ -90,8 +90,6 @@
                     return
                 }
                 
-                // Test data log
-                console.log(mem.privacy)
                 // Save information to PK with a patch request
                 await pk().members(member.id).patch({data: mem, token: token})
                 // Reassign member to the response from a new API call to update information
@@ -429,12 +427,16 @@
         input {
             margin: 5px !important;
         }
+        input:hover {
+            background-color: $gray-2;
+        }
         :first-child {
             margin-left: 0px !important;
         }    
         button {
             background-color: $red;
-        } :hover {
+        }
+        button:hover {
         background-color: $red-2;
         }
     }

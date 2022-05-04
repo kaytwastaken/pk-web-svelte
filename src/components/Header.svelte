@@ -5,7 +5,7 @@
 <header>
     <span class="home">
         <a href="/">pk-web-<em>svelte</em></a>
-        <a href="/credits">Open source credits</a>
+        <a href="/credits">Credits/Links</a>
         <a href="https://github.com/Kaytwastaken/pk-web-svelte" target="_blank" class="external">Source code</a>
     </span>
     <span class="nav">
