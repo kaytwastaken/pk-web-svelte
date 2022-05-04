@@ -125,7 +125,9 @@
         <div id={member.id} class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
             <span class="memberHeader">
-                <img src={member.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+                {#if member.avatar_url}
+                    <img src={member.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+                {/if}
                 <!-- Vertical container -->
                 <div>
                     <!-- Horizontal container -->

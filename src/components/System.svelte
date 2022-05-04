@@ -95,7 +95,9 @@
     {#if !edit}
         <div class="system" on:click={expandTray}>
             <span class="systemHeader">
-                <img src={system.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+                {#if system.avatar_url}
+                    <img src={system.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+                {/if}
                 <div>
                     <span>
                         <h1 class="name">{system.name}</h1>
