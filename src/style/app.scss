@@ -6,8 +6,9 @@ $gray: #3c3d3c;
 $blue: #309695;
 $blue-secondary: #1f6362;
 $orange: #f26430;
+    $orange-2: #a04321;
 $red: #da4a4a;
-    $red-2: #ad3636;
+    $red-2: #a72f2f;
 $green: #369e57;
     $green-2: #23693a;
 $text: #dddddc;
@@ -54,6 +55,11 @@ p {
     align-items: center;
 }
 
+span {
+    display: flex;
+    flex-direction: row;
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -81,6 +87,15 @@ input[type=submit], button {
 }
 button {
     width: unset;
+}
+button:disabled {
+    background: none;
+    border: 1px solid $blue;
+    color: $blue;
+    opacity: .7
+}
+button:disabled:hover {
+    cursor: default;
 }
 input[type=submit]:hover, button:hover {
     cursor: pointer;

@@ -53,7 +53,7 @@ function month (num) {
     }
 }
 
-export function readable (dateString) {
+export function readableDOB (dateString) {
     let dateArray = dateString.split('-')
     
     if ( dateArray.length == 3 ) {
@@ -65,24 +65,46 @@ export function readable (dateString) {
     }
 }
 
-export function validate (dateString) {
-    // let dateArray = dateString.split('-')
+export function validateMember (mem) {
+    // Validate DOB w function from $lib/birthday.ts
+    if ( mem.birthday ) {
+        if ( !dateRegex.test(mem.birthday) ) {
+            throw new Error ("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
+        }
+    }
+    if ( mem.color ) {
+        // Check against a valid 6-character hex regex
+        if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(mem.color) ) {
+            // ✨ regexes :D
+            throw new Error("Please enter a valid hex color code")
+        }
+        // Return without the # if neccessary
+        if ( mem.color.slice(0,1) == '#' ) {
+            mem.color = mem.color.slice(1,7)
+        }
 
-    // if ( dateArray.length == 3 ) {
-    //     if ( dateArray[0].length == 4 ) {
-    //         if ( parseInt(dateArray[1]) < 13 && parseInt(dateArray[2]) < 32 ) {
-    //             return dateString
-    //         }
-    //     }
-    // } else if ( dateArray.length == 2 ) {
-    //     if ( parseInt(dateArray[0]) < 13 && parseInt(dateArray[1]) < 32 ) {
-    //         return `0004-${dateString}`
-    //     }
-    // } else {
-    //     throw new Error("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
-    // }
+    }
+    for ( let prop in mem.privacy ) {
+        mem.privacy[prop] = mem.privacy[prop] ? 'public' : 'private'
+        console.log(mem.privacy[prop])
+    }
+}
 
-    if ( !dateRegex.test(dateString) ) {
-        throw new Error ("Date not recognized. Enter a date in either yyyy-mm-dd or mm-dd format.")
+export function validateSystem (sys) {
+    if ( sys.color ) {
+        // Check against a valid 6-character hex regex
+        if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(sys.color) ) {
+            // ✨ regexes :D
+            throw new Error("Please enter a valid hex color code")
+        }
+        // Return without the # if neccessary
+        if ( sys.color.slice(0,1) == '#' ) {
+            sys.color = sys.color.slice(1,7)
+        }
+
+    }
+    for ( let prop in sys.privacy ) {
+        sys.privacy[prop] = sys.privacy[prop] ? 'public' : 'private'
+        console.log(sys.privacy[prop])
     }
 }

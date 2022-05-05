@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { loggedIn, currentUser } from '../stores';
-    import { login, logout } from '$lib/user'
+    import { loggedIn, currentUser } from '$lib/stores'
+    import { login, logout } from '$lib/user';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     
@@ -15,8 +15,6 @@
     // Elements
     let editButton
     let publicButton
-    let form
-    let formInput
 
     let isLoggedIn:boolean
     let user;
@@ -38,8 +36,6 @@
         // Assign elements to alias variables
         editButton = document.getElementById('editButton')
         publicButton = document.getElementById('publicButton')
-        form = document.getElementById('loginForm')
-        formInput = document.getElementById('formInput')
     })
 
     // Define handler for login imported from user

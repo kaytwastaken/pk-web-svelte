@@ -4,17 +4,19 @@
     
     import dateFormat from 'dateformat'
     import { onMount } from 'svelte';
+    import { deleteFlow } from '$lib/stores';
     // Mine :)
     import type { Member, WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
     import pk from '$lib/pk';
-    import { readable, validate as validateDOB } from '$lib/birthday'
+    import { validateMember, readableDOB } from '$lib/validate'
 
     let token
     let edit = false
     let err
     let loading = false
     let loadMsg
+    let memList
     
     let mem:WriteMember = {
         name: member.name,
@@ -39,40 +41,6 @@
         }
     }
 
-    // Validate member data before sending API call
-    function validate () {
-        // Validate DOB w function from $lib/birthday.ts
-        if ( mem.birthday ) {
-            try {
-                validateDOB(mem.birthday)
-            } catch (error) {
-                err = error
-                loading = false
-                loadMsg = null
-                throw err
-            }
-        }
-        if ( mem.color ) {
-            // Check against a valid 6-character hex regex
-            if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(mem.color) ) {
-                // ✨ regexes :D
-                err = new Error("Please enter a valid hex color code")
-                loadMsg = null
-                loading = false
-                throw err
-            }
-            // Return without the # if neccessary
-            if ( mem.color.slice(0,1) == '#' ) {
-                mem.color = mem.color.slice(1,7)
-            }
-
-        }
-        for ( let prop in mem.privacy ) {
-            mem.privacy[prop] = mem.privacy[prop] ? 'public' : 'private'
-            console.log(mem.privacy[prop])
-        }
-    }
-
     async function toggleEdit (cancel = false) {
         err = undefined
         // If not currently editing, set to edit mode
@@ -87,7 +55,7 @@
                 // Validate member data
                 try {
                     loadMsg = 'Checking member data...'
-                    validate()
+                    validateMember(mem)
                 } catch (error) {
                     err = error
                     loadMsg = null
@@ -125,6 +93,17 @@
         mem.proxy_tags = mem.proxy_tags
     }
     
+    // Danger zone >:O
+    let delFlow
+    
+    deleteFlow.subscribe( value => {
+        delFlow = value
+    })
+    
+    function startDelete () {
+        deleteFlow.set({visibility: true, member: member})
+    }
+
 </script>
 
 <!-- Return a div to be used in {#each} block on the profile page -->
@@ -166,7 +145,7 @@
                 <p>Registered: <code>{dateFormat(member.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(member.created, "h:MM:ss TT")}</code></p>
                 <p>Name: {member.name ?? "N/A"}</p>
                 <p>Display name: {member.display_name ?? "N/A"}</p>
-                <p>Birthday: {member.birthday ? readable(member.birthday) : "N/A"}</p>
+                <p>Birthday: {member.birthday ? readableDOB(member.birthday) : "N/A"}</p>
                 <p>Pronouns: {member.pronouns ?? "N/A"}</p>
                 <span><p>Color: {member.color ?? "N/A"}</p> <span id='swatch' style="background-color: #{member.color};"></span></span>
             </div>
@@ -189,7 +168,7 @@
     
     {:else}
     
-        <div id={member.id} class="memberCard" on:click = {expandTray}>
+        <div id={member.id} class="memberCard">
             <!-- Horizontal container -->
             <span class="memberHeader">
                 <img src={mem.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
@@ -208,6 +187,9 @@
                         <small>{member.pronouns ?? "No pronouns set"}</small>
                     </span>
                 </div>
+                <button id="delete" on:click={() => {startDelete()}}>
+                    Delete
+                </button>
                 <span class="buttons">
                     <button id="save" on:click={() => {toggleEdit()}}>
                         Save
@@ -321,17 +303,6 @@
         display: flex;
         flex-direction: row;
     }
-    
-
-    .container {
-        align-items: center;
-    }
-    .hr {
-        width: 70vw;
-        @include descending-width;
-        border-bottom: 3px solid $gray;
-        margin: 1rem 0 2rem 0;
-    }
     .cardHolder {
         border-radius: .5rem;
         background: $gray;
@@ -383,9 +354,9 @@
     }
     .buttons, button {
         margin-left: auto;
-        margin-right: 0 !important;
+        margin-right: 1rem !important;
         :last-child {
-            margin-left: 1rem;
+            margin-right: 0 !important;
         }
         @include xs-screen {
             flex-direction: column;
@@ -405,13 +376,24 @@
         background-color: $green-2;
     }
     #cancel {
-        background-color: $red;
+        background-color: $orange;
         @include xs-screen {
             position: relative;
             top: -2.6rem;
         }
     }
     #cancel:hover {
+        background-color: $orange-2;
+    }
+    #delete {
+        margin: 0 !important;
+        background-color: $red;
+        @include xs-screen {
+            position: relative;
+            top: -2.6rem;
+        }
+    }
+    #delete:hover {
         background-color: $red-2;
     }
     input {

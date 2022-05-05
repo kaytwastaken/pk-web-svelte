@@ -1,4 +1,4 @@
-import { loggedIn, currentUser } from '../stores';
+import { loggedIn, currentUser } from './stores';
 import pk from '$lib/pk';
 
 export async function login(token) {

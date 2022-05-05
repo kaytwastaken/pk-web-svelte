@@ -2,18 +2,24 @@
     export let token
     export let id:string
     
-    import { currentUser } from '../stores';
+    import { currentUser, memberList } from '$lib/stores';
     import type { System, Member } from '../lib/types'
     import pk from '../lib/pk'
     import { goto } from '$app/navigation';
 
     import SystemCard from './System.svelte'
     import MemberCard from './Members.svelte'
+    import NewMember from './NewMember.svelte'
+    import DeleteModal from './DeleteModal.svelte'
     
-    // Subcribe to the currentUser store
+    // Subcribe to the currentUser and memberList stores
     let user
     currentUser.subscribe(value => {
         user = value
+    })
+    let members:Array<Member>
+    memberList.subscribe(value => {
+        members = value
     })
 
     // If no token is passed (for public info) set needAuth to false and pass {auth:false}
@@ -27,10 +33,9 @@
     // Define functions to fetch info
     let system:System
     let systemName
-    let members:Array<Member>
 
     const memberFetch = async () => {
-        members = await pk().systems(id).members.get({ token })
+        memberList.set(await pk().systems(id).members.get({ token }))
     }
     const systemFetch = async () => {
         if ( user != null && needAuth == true ) { system = user }
@@ -53,8 +58,12 @@
 </script>
 
 <svelte:head>
-    <title>{systemName ?? "Loading..."} | pk-web</title>
+    <title>{needAuth
+    ? systemName ?? "Loading..."
+    : systemName ?? id} | pk-web</title>
 </svelte:head>
+
+<DeleteModal />
 
 <div class="container">    
     {#await systemPromise}
@@ -70,9 +79,14 @@
         <h1>Loading members...</h1>
     {:then}
         <div class="members">
-            {#each members as member}
-                <MemberCard member={member} needAuth={needAuth}></MemberCard>
-            {/each}
+            {#if needAuth}
+                <NewMember />
+            {/if}
+            {#key members}
+                {#each members as member}
+                    <MemberCard member={member} needAuth={needAuth}></MemberCard>
+                {/each}
+            {/key}
         </div>
     
     {:catch error}

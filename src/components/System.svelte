@@ -8,6 +8,7 @@
     import pk from '$lib/pk';
     import Privacy from './SystemPrivacy.svelte'
     import { onMount } from 'svelte';
+    import { validateSystem } from '$lib/validate'
 
     let token
     let edit = false
@@ -33,28 +34,6 @@
     function expandTray () {
         document.getElementById(`${system.id}-tray`).classList.toggle('hidden')
     }
-
-    function validate () {
-        if ( sys.color ) {
-            // Check against a valid 6-character hex regex
-            if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(sys.color) ) {
-                // ✨ regexes :D
-                err = new Error("Please enter a valid hex color code")
-                loadMsg = null
-                loading = false
-                throw err
-            }
-            // Return without the # if neccessary
-            if ( sys.color.slice(0,1) == '#' ) {
-                sys.color = sys.color.slice(1,7)
-            }
-
-        }
-        for ( let prop in sys.privacy ) {
-            sys.privacy[prop] = sys.privacy[prop] ? 'public' : 'private'
-            console.log(sys.privacy[prop])
-        }
-    }
     
     async function toggleEdit (cancel = false) {
         err = undefined
@@ -70,7 +49,7 @@
                 // Validate system data
                 try {
                     loadMsg = 'Checking system data...'
-                    validate()
+                    validateSystem(sys)
                 } catch (error) {
                     err = error
                     loadMsg = null
