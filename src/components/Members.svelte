@@ -14,6 +14,7 @@
     let edit = false
     let err
     let loading = false
+    let loadMsg
     
     let mem:WriteMember = {
         name: member.name,
@@ -47,6 +48,7 @@
             } catch (error) {
                 err = error
                 loading = false
+                loadMsg = null
                 throw err
             }
         }
@@ -55,6 +57,7 @@
             if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(mem.color) ) {
                 // ✨ regexes :D
                 err = new Error("Please enter a valid hex color code")
+                loadMsg = null
                 loading = false
                 throw err
             }
@@ -83,21 +86,26 @@
                 
                 // Validate member data
                 try {
+                    loadMsg = 'Checking member data...'
                     validate()
                 } catch (error) {
                     err = error
+                    loadMsg = null
                     loading = false
                     return
                 }
                 
                 // Save information to PK with a patch request
+                loadMsg = '(1/2) Saving data...'
                 await pk().members(member.id).patch({data: mem, token: token})
                 // Reassign member to the response from a new API call to update information
+                loadMsg = '(2/2) Refreshing data...'
                 member = await pk().members(member.id).get({ token })
                 
                 // Exit edit mode
                 edit = false
                 loading = false
+                loadMsg = null
                 return
             }
             // If cancel = true exit edit mode
@@ -213,7 +221,7 @@
         <div class="tray" id="{member.id}-tray">
             <div style="margin-bottom: 1rem;">
                 <p class="err">{err ?? ""}</p>
-                <p class="load">{loading ? "Loading..." : ""}</p>
+                <p class="load">{loading ? loadMsg : ""}</p>
                 <span> <p>Name: </p> <input type="text" name="name" id="name" placeholder={member.name ?? "Name"} bind:value={mem.name}> </span>
                 <span> <p>Display Name: </p> <input type="text" name="tag" id="tag" placeholder={member.display_name ?? "Display name"} bind:value={mem.display_name}> </span>
                 <span> <p>Birthday: </p> <input type="text" name="dob" id="dob" placeholder={member.birthday ?? "Birthday (yyyy-mm-dd or mm-dd)"} bind:value={mem.birthday}> </span>
@@ -364,6 +372,8 @@
     }
     .err, .load {
         margin-bottom: 1rem;
+        font-size: larger;
+        font-weight: 700;
     }
     .err {
         color: $red;

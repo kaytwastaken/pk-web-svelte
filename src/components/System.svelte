@@ -13,6 +13,7 @@
     let edit = false
     let err
     let loading = false
+    let loadMsg
 
     let sys:WriteSystem = {
         name: system.name,
@@ -39,6 +40,7 @@
             if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(sys.color) ) {
                 // ✨ regexes :D
                 err = new Error("Please enter a valid hex color code")
+                loadMsg = null
                 loading = false
                 throw err
             }
@@ -67,20 +69,25 @@
                 
                 // Validate system data
                 try {
+                    loadMsg = 'Checking system data...'
                     validate()
                 } catch (error) {
                     err = error
+                    loadMsg = null
                     loading = false
                     return
                 }
                 
                 // Save information to PK with a patch request
+                loadMsg = '(1/2) Saving data...'
                 await pk().systems('@me').patch({ data: sys, token: token})
                 // Reassign system to a new API call to get updated information
+                loadMsg = '(2/2) Refreshing data...'
                 system = await pk().systems('@me').get({ token })
                 
                 // Exit edit mode
                 edit = false
+                loadMsg = null
                 loading = false
                 return
             }
@@ -170,7 +177,7 @@
         </div>
         <div class="tray" id="{system.id}-tray">
             <p class="err">{err ?? ""}</p>
-            <p class="load">{loading ? "Loading..." : ""}</p>
+            <p class="load">{loading ? loadMsg : ""}</p>
 
             <p class="editField">Registered: <code>{dateFormat(system.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(system.created, "h:MM:ss TT")}</code></p>
             {#if members}
@@ -303,6 +310,8 @@
     }
     .err, .load {
         margin-bottom: 1rem;
+        font-size: larger;
+        font-weight: 700;
     }
     .err {
         color: $red;
