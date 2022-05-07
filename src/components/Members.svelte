@@ -171,7 +171,7 @@
         <div id={member.id} class="memberCard">
             <!-- Horizontal container -->
             <span class="memberHeader">
-                <img src={mem.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+                <img src={mem.avatar_url} alt="" height="64px" style="border-radius: 9999px; display: {member.avatar_url == null ? 'none' : 'unset'};">
                 <!-- Vertical container -->
                 <div>
                     <!-- Horizontal container -->
@@ -187,15 +187,15 @@
                         <small>{member.pronouns ?? "No pronouns set"}</small>
                     </span>
                 </div>
-                <button id="delete" on:click={() => {startDelete()}}>
-                    Delete
-                </button>
                 <span class="buttons">
-                    <button id="save" on:click={() => {toggleEdit()}}>
-                        Save
+                    <button id="delete" on:click={() => {startDelete()}}>
+                        Delete
                     </button>
                     <button id="cancel" on:click={() => {toggleEdit(true)}}>
                         Cancel
+                    </button>
+                    <button id="save" on:click={() => {toggleEdit()}}>
+                        Save
                     </button>
                 </span>
             </span>
@@ -289,7 +289,7 @@
         }
         .detail {
             display: flex;
-            @include sm-screen {
+            @include md-screen {
                 flex-direction: column;
                 div {
                     margin-bottom: 1rem;
@@ -326,19 +326,21 @@
         }
         span {
             align-items: center;
-            * {
+            p, small, h2 {
                 margin-right: .5rem;
             }
         }
-        
-        .tray > span {
-            align-items: flex-start;
-        }
     }
     .memberHeader {
+        button {
+            margin-left: auto;
+        }
         @include xs-screen {
             flex-direction: column;
             align-items: flex-start !important;
+            button {
+                margin-left: unset;
+            }
         }
     }
     .err, .load {
@@ -352,45 +354,48 @@
     .load {
         color: $blue;
     }
-    .buttons, button {
+    .buttons {
         margin-left: auto;
-        margin-right: 1rem !important;
         :last-child {
             margin-right: 0 !important;
         }
+        button {
+            margin: .5rem;
+        }
         @include xs-screen {
-            flex-direction: column;
-            margin-left: 0 !important;
-            margin-right: auto;
+            // flex-direction: column;
+            margin-left: 0;
             align-items: flex-start !important;
+            :first-child {
+                margin-left: 0;
+            }
         }
     }
     #save {
         background-color: $green;
-        @include xs-screen {
-            position: relative;
-            top: 3rem;
-        }
+        // @include xs-screen {
+        //     position: relative;
+        //     top: 3rem;
+        // }
     }
     #save:hover {
         background-color: $green-2;
     }
     #cancel {
         background-color: $orange;
-        @include xs-screen {
-            position: relative;
-            top: -2.6rem;
-        }
+        // @include xs-screen {
+        //     position: relative;
+        //     top: -2.6rem;
+        // }
     }
     #cancel:hover {
         background-color: $orange-2;
     }
     #delete {
-        margin: 0 !important;
+        // margin: auto 0 auto 0;
         background-color: $red;
         @include xs-screen {
-            position: relative;
-            top: -2.6rem;
+            margin-top: .5rem;
         }
     }
     #delete:hover {
@@ -436,23 +441,17 @@
     }
     textarea {
         height: 20rem;
-        width: 40rem;
+        width: 35rem;
         background-color: $gray-3;
         font-size: medium;
         padding: .5rem;
         @include xl-screen {
-            width: 30rem;
-        }
-        @include lg-screen {
             width: 25rem;
         }
-        @include md-screen {
-            width: 20rem;
+        @include lg-screen {
+            width: 18rem;
         }
-        // @include sm-screen {
-        //     width: 15rem;
-        // }
-        @include xs-screen {
+        @include md-screen {
             width: 100%;
         }
     }

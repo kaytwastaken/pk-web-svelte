@@ -25,8 +25,7 @@
     })
 
     function cancel () {
-        console.log("canceled")
-        console.log()
+        input = null
         deleteFlow.set({
             visibility: false,
             member: null
@@ -47,7 +46,8 @@
         memList.splice(memList.indexOf(delFlow.member), 1)
         // Set memberList to shortened list (rerenders member cards)
         memberList.set(memList)
-        // Close the modal
+        // Close and reset the modal
+        input = null
         deleteFlow.set({
             visibility: false,
             member: null
@@ -67,14 +67,16 @@
             <p class="load">{loading ? loadMsg : ''}</p>
             <label for="id">Input {delFlow.member.name}'s id ({delFlow.member.id}) to continue.</label>
             <div>
-                <span>
+                <span class="inputs">
                     <input type="text" name="id" id="id" bind:value={input}>
-                    <button id="cancel" on:click={cancel}>
-                        Cancel
-                    </button>
-                    <button id="delete" disabled={input == delFlow.member.id ? false : true} on:click={() => {deleteMember()}}>
-                        Delete
-                    </button>
+                    <span>
+                        <button id="cancel" on:click={cancel}>
+                            Cancel
+                        </button>
+                        <button id="delete" disabled={input == delFlow.member.id ? false : true} on:click={() => {deleteMember()}}>
+                            Delete
+                        </button>
+                    </span>
                 </span>
             </div>
         </div>
@@ -95,7 +97,18 @@
     #delModal {
         padding: 5rem;
         background-color: $gray-2;
+        border: 2px solid $gray;
         border-radius: 1rem;
+        max-width: 50vw;
+        @include xs-screen {
+            padding: 2rem;
+            max-width: 70vw;
+        }
+    }
+    .inputs {
+        @include xs-screen {
+            flex-direction: column;
+        }
     }
     input {
         margin: .5rem .5rem .5rem 0 !important;
@@ -108,8 +121,7 @@
     #cancel {
         background-color: $orange;
         @include xs-screen {
-            position: relative;
-            top: -2.6rem;
+            margin: 0 .5rem 0 0 !important;
         }
     }
     #cancel:hover {
@@ -118,8 +130,7 @@
     #delete {
         background-color: $red;
         @include xs-screen {
-            position: relative;
-            top: -2.6rem;
+            margin: 0 .5rem 0 0 !important;
         }
     }
     #delete:hover {

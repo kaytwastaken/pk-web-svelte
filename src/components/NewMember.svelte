@@ -22,26 +22,30 @@
         memList = value
     })
 
-    let mem:WriteMember = {
-        name: '',
-        display_name: '',
-        color: '',
-        birthday: '',
-        pronouns: '',
-        avatar_url: '',
-        banner: '',
-        description: '',
-        proxy_tags: [],
-        privacy: {
-            visibility: 'public',
-            name_privacy: 'public',
-            description_privacy: 'public',
-            bithday_privacy: 'public',
-            pronoun_privacy: 'public',
-            avatar_privacy: 'public',
-            metadata_privacy: 'public'
-        },
+    let mem:WriteMember
+    function clearMem () {
+        mem = {
+            name: '',
+            display_name: '',
+            color: '',
+            birthday: '',
+            pronouns: '',
+            avatar_url: '',
+            banner: '',
+            description: '',
+            proxy_tags: [],
+            privacy: {
+                visibility: 'public',
+                name_privacy: 'public',
+                description_privacy: 'public',
+                bithday_privacy: 'public',
+                pronoun_privacy: 'public',
+                avatar_privacy: 'public',
+                metadata_privacy: 'public'
+            },
+        }
     }
+    clearMem()
 
     async function saveData () {
         // Do stuff
@@ -67,6 +71,7 @@
         memberList.set(memList)
         
         // Exit edit mode
+        clearMem()
         loading = false
         loadMsg = null
         edit = false
@@ -105,7 +110,7 @@
                     <button id="save" on:click={() => {saveData()}} disabled={mem.name != '' ? false : true}>
                         Save
                     </button>
-                    <button id="cancel" on:click={() => {edit = false}}>
+                    <button id="cancel" on:click={() => {edit = false; clearMem()}}>
                         Cancel
                     </button>
                 </span>
