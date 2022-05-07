@@ -10,13 +10,13 @@
     import Privacy from './MemberPrivacy.svelte'
     import pk from '$lib/pk';
     import { validateMember, readableDOB } from '$lib/validate'
+    import { addProxy, deleteProxy } from '$lib/members'
 
     let token
     let edit = false
     let err
     let loading = false
     let loadMsg
-    let memList
     
     let mem:WriteMember = {
         name: member.name,
@@ -41,65 +41,42 @@
         }
     }
 
-    async function toggleEdit (cancel = false) {
-        err = undefined
-        // If not currently editing, set to edit mode
-        if (!edit) {
-            edit = true
-        // If cancel=true is passed, set edit to false
-        } else {
-            // If cancel=false validate and send
-            if (!cancel) {
-                loading = true
+    function cancel () {
+        err = null
+        edit = false
+        loading = false
+        loadMsg = null
+    }
+
+    async function saveData () {
+        loading = true
                 
-                // Validate member data
-                try {
-                    loadMsg = 'Checking member data...'
-                    validateMember(mem)
-                } catch (error) {
-                    err = error
-                    loadMsg = null
-                    loading = false
-                    return
-                }
-                
-                // Save information to PK with a patch request
-                loadMsg = '(1/2) Saving data...'
-                await pk().members(member.id).patch({data: mem, token: token})
-                // Reassign member to the response from a new API call to update information
-                loadMsg = '(2/2) Refreshing data...'
-                member = await pk().members(member.id).get({ token })
-                
-                // Exit edit mode
-                edit = false
-                loading = false
-                loadMsg = null
-                return
-            }
-            // If cancel = true exit edit mode
-            edit = false
+        // Validate member data
+        try {
+            loadMsg = 'Checking member data...'
+            validateMember(mem)
+        } catch (error) {
+            err = error
+            loadMsg = null
+            loading = false
+            return
         }
-    }
-
-    function deleteProxy (index) {
-        // Delete the specified proxy object and update the objects
-        mem.proxy_tags.splice(index, 1)
-        mem.proxy_tags = mem.proxy_tags
-    }
-
-    function addProxy () {
-        // Create a blank proxy object and update the objects
-        mem.proxy_tags.push({prefix: '', suffix: ''})
-        mem.proxy_tags = mem.proxy_tags
+        
+        // Save information to PK with a patch request
+        loadMsg = '(1/2) Saving data...'
+        await pk().members(member.id).patch({data: mem, token: token})
+        // Reassign member to the response from a new API call to update information
+        loadMsg = '(2/2) Refreshing data...'
+        member = await pk().members(member.id).get({ token })
+        
+        // Exit edit mode
+        edit = false
+        loading = false
+        loadMsg = null
+        return
     }
     
-    // Danger zone >:O
-    let delFlow
-    
-    deleteFlow.subscribe( value => {
-        delFlow = value
-    })
-    
+    // Danger zone :O
     function startDelete () {
         deleteFlow.set({visibility: true, member: member})
     }
@@ -131,7 +108,7 @@
                     </span>
                 </div>
                 {#if needAuth}
-                    <button on:click={() => {toggleEdit()}}>
+                    <button on:click={() => {edit = true}}>
                         Edit
                     </button>
                 {/if}
@@ -191,10 +168,10 @@
                     <button id="delete" on:click={() => {startDelete()}}>
                         Delete
                     </button>
-                    <button id="cancel" on:click={() => {toggleEdit(true)}}>
+                    <button id="cancel" on:click={() => {cancel()}}>
                         Cancel
                     </button>
-                    <button id="save" on:click={() => {toggleEdit()}}>
+                    <button id="save" on:click={() => {saveData()}}>
                         Save
                     </button>
                 </span>
@@ -229,10 +206,10 @@
                             <input type="text"  name="prefix" id="pre" placeholder="Prefix" bind:value={proxy.prefix}>
                             <p>text</p>
                             <input type="text" name="suffix" id="suf" placeholder="Suffix" bind:value={proxy.suffix}>
-                            <button on:click={() => {deleteProxy(index)}}>✖</button>
+                            <button on:click={() => {mem.proxy_tags = deleteProxy(index, mem)}}>✖</button>
                         </span>
                     {/each}
-                    <button on:click={addProxy}>New</button>
+                    <button on:click={() => {mem.proxy_tags = addProxy(mem)}}>New</button>
 
                 </div>
                 {#if needAuth}

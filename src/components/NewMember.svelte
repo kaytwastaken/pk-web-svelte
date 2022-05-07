@@ -2,10 +2,11 @@
     import { memberList } from '$lib/stores'
     import { onMount } from 'svelte';
     // Mine :)
-    import type { Member, WriteMember } from '$lib/types'
+    import type { WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
     import { validateMember } from '$lib/validate'
     import pk from '$lib/pk'
+    import { addProxy, deleteProxy } from '$lib/members'
 
     let token
     let edit = false
@@ -47,6 +48,13 @@
     }
     clearMem()
 
+    function cancel () {
+        err = null
+        loading = false
+        loadMsg = null
+        clearMem()
+    }
+
     async function saveData () {
         // Do stuff
         // Save information to PK with a patch request
@@ -75,19 +83,6 @@
         loading = false
         loadMsg = null
         edit = false
-
-    }
-
-    function deleteProxy (index) {
-        // Delete the specified proxy object and update the objects
-        mem.proxy_tags.splice(index, 1)
-        mem.proxy_tags = mem.proxy_tags
-    }
-
-    function addProxy () {
-        // Create a blank proxy object and update the objects
-        mem.proxy_tags.push({prefix: '', suffix: ''})
-        mem.proxy_tags = mem.proxy_tags
     }
 
 </script>
@@ -110,7 +105,7 @@
                     <button id="save" on:click={() => {saveData()}} disabled={mem.name != '' ? false : true}>
                         Save
                     </button>
-                    <button id="cancel" on:click={() => {edit = false; clearMem()}}>
+                    <button id="cancel" on:click={() => {cancel()}}>
                         Cancel
                     </button>
                 </span>
@@ -147,10 +142,10 @@
                             <input type="text"  name="prefix" id="pre" placeholder="Prefix" bind:value={proxy.prefix}>
                             <p>text</p>
                             <input type="text" name="suffix" id="suf" placeholder="Suffix" bind:value={proxy.suffix}>
-                            <button on:click={() => {deleteProxy(index)}}>✖</button>
+                            <button on:click={() => {mem.proxy_tags = deleteProxy(index, mem)}}>✖</button>
                         </span>
                     {/each}
-                    <button on:click={addProxy}>New</button>
+                    <button on:click={() => {mem.proxy_tags = addProxy(mem)}}>New</button>
 
                 </div>
                 <Privacy edit={edit} mem={mem}/>
