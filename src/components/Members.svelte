@@ -303,7 +303,7 @@
         }
         span {
             align-items: center;
-            p, small, h2 {
+            p, small, h2, img {
                 margin-right: .5rem;
             }
         }

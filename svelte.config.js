@@ -1,6 +1,7 @@
 // import adapter from '@sveltejs/adapter-auto';
 import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
+import { defineConfig } from 'vite'
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -23,8 +24,18 @@ const config = {
 		adapter: adapter({
 			out: 'build',
 			envPrefix: 'PROD_'
-		})
-	}
+		}),
+		vite: {
+			server: {
+			  fs: {
+				allow: ['static'],
+			  },
+			},
+		  },
+	},
+
+	
+	
 };
 
 export default config;
