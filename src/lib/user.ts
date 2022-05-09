@@ -12,7 +12,6 @@ export async function login(token) {
 
     // If the login fails tell the user and log it.
     } catch (error) {
-        console.error(error.message)
         // Nuke the token and stores
         localStorage.removeItem('token')
         loggedIn.update(() => false)

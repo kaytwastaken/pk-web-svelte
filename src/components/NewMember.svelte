@@ -49,6 +49,7 @@
     clearMem()
 
     function cancel () {
+        edit = false
         err = null
         loading = false
         loadMsg = null

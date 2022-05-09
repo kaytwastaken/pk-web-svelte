@@ -8,7 +8,7 @@
 <footer>
     <span>
         <a href="https://kayt.dev" class="external" target="_blank">kayt.dev</a>
-        <p class="gray">v0.3.2</p>
+        <p class="gray">v0.3.3</p>
     </span>
 </footer>
 
