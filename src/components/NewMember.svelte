@@ -66,7 +66,8 @@
             speed: 300,
             trickle: true,
             trickleSpeed: 100,
-            parent: `#newMem`
+            parent: `#newMem`,
+            showSpinner: false,
         })
         NProgress.start()
 

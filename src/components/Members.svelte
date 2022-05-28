@@ -56,7 +56,8 @@
             speed: 300,
             trickle: true,
             trickleSpeed: 100,
-            parent: `#${member.id}`
+            parent: `#${member.id}`,
+            showSpinner: false,
         })
         NProgress.start()
         
