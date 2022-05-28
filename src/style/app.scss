@@ -1,17 +1,4 @@
-// Colors
-$bg: #151514;
-$gray: #3c3d3c;
-    $gray-2: #292928;
-        $gray-3: #505050;
-$blue: #309695;
-$blue-secondary: #1f6362;
-$orange: #f26430;
-    $orange-2: #a04321;
-$red: #da4a4a;
-    $red-2: #a72f2f;
-$green: #369e57;
-    $green-2: #23693a;
-$text: #dddddc;
+@import 'vars';
 
 @font-face {
     font-family: Raleway;

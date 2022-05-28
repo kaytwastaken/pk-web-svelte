@@ -100,7 +100,12 @@
                 {#if err}
                     <p class="err">{err.code == '401' ? 'Invalid token.' + token : err.message}</p>
                 {/if}
-                <input disabled={edit ? (token.length != 64 ? true : false) : (token.length == 5 || token.length == 18 ? false : true)} type="submit" class="submit">
+                <input
+                    disabled={edit ? (token.length != 64 ? true : false) : (token.length == 5 || token.length == 18 ? false : true)}
+                    type="submit"
+                    class="submit"
+                    value="Submit"
+                >
             </form>
         {/if}
     </div>

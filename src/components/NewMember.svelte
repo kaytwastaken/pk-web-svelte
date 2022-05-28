@@ -1,6 +1,7 @@
 <script lang=ts>
     import { memberList } from '$lib/stores'
-    import { onMount } from 'svelte';
+    import { onMount } from 'svelte'
+    import NProgress from 'nprogress'
     // Mine :)
     import type { WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
@@ -24,7 +25,7 @@
     })
 
     let mem:WriteMember
-    function clearMem () {
+    function clearLocalMem () {
         mem = {
             name: '',
             display_name: '',
@@ -46,33 +47,46 @@
             },
         }
     }
-    clearMem()
+    clearLocalMem()
 
     function cancel () {
         edit = false
         err = null
         loading = false
         loadMsg = null
-        clearMem()
+        clearLocalMem()
     }
 
     async function saveData () {
         // Do stuff
         // Save information to PK with a patch request
         loading = true
+        NProgress.configure({
+            minimum: 0.1,
+            speed: 300,
+            trickle: true,
+            trickleSpeed: 100,
+            parent: `#newMem`
+        })
+        NProgress.start()
+
         loadMsg = '(1/2) Saving data...'
+        NProgress.set(.3)
         try {
             validateMember(mem)
             console.log("data validated")
         } catch (error) {
+            err = error
             console.log("error caught" + error)
+            loading = false
             loadMsg = null
-            edit = false
+            NProgress.done()
             return
         }
         // Add the response object to the member list (which should hopefully rerender the list?? fingers crossed)
         
         loadMsg = '(2/2) Refreshing data...'
+        NProgress.set(0.8)
         // Post req to API and add response to memList
         memList.push(await pk().members().post({data: mem, token: token}))
         
@@ -80,7 +94,9 @@
         memberList.set(memList)
         
         // Exit edit mode
-        clearMem()
+        clearLocalMem()
+        // Clear local member buffer to remove left-over data on next edit
+        NProgress.done()
         loading = false
         loadMsg = null
         edit = false
@@ -89,7 +105,7 @@
 </script>
 
 <div class="cardHolder">
-    <div class="memberCard">
+    <div id="newMem" class="memberCard">
         <span class="memberHeader">
             Add member
             {#if !edit}

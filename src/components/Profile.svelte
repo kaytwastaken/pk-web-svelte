@@ -101,6 +101,7 @@
                 type="submit"
                 disabled={id.length != 5 && id.length != 18 && error.code != 429 && error.code != 500}
                 style="display: {error.code == 403 || error.code == 404 ? 'none' : 'unset'};"
+                value="Submit"
             >
         </form>
     

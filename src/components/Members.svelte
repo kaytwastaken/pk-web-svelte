@@ -4,8 +4,9 @@
     
     import dateFormat from 'dateformat'
     import { onMount } from 'svelte';
-    import { deleteFlow } from '$lib/stores';
+    import NProgress from 'nprogress'
     // Mine :)
+    import { deleteFlow } from '$lib/stores';
     import type { Member, WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
     import pk from '$lib/pk';
@@ -50,29 +51,41 @@
 
     async function saveData () {
         loading = true
-                
+        NProgress.configure({
+            minimum: 0.1,
+            speed: 300,
+            trickle: true,
+            trickleSpeed: 100,
+            parent: `#${member.id}`
+        })
+        NProgress.start()
+        
         // Validate member data
         try {
             loadMsg = 'Checking member data...'
             validateMember(mem)
         } catch (error) {
             err = error
-            loadMsg = null
             loading = false
+            loadMsg = null
+            NProgress.done()
             return
         }
         
         // Save information to PK with a patch request
         loadMsg = '(1/2) Saving data...'
+        NProgress.set(.3)
         await pk().members(member.id).patch({data: mem, token: token})
         // Reassign member to the response from a new API call to update information
         loadMsg = '(2/2) Refreshing data...'
+        NProgress.set(.8)
         member = await pk().members(member.id).get({ token })
         
         // Exit edit mode
         edit = false
         loading = false
         loadMsg = null
+        NProgress.done()
         return
     }
     

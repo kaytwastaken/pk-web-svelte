@@ -17,7 +17,12 @@
         <h1>Enter a 5-letter system ID or an 18 character Discord User ID</h1>
         <form on:submit|preventDefault={retry}>
             <input type="text" name="input" placeholder="System ID" bind:value={input}>
-            <input disabled={input.length != 5 && input.length != 18} type="submit" class="submit">
+            <input
+                disabled={input.length != 5 && input.length != 18}
+                type="submit"
+                class="submit"
+                value="Submit"
+            >
         </form>
     </div>
 </div>
