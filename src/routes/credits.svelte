@@ -8,9 +8,11 @@
             <h1>Website</h1>
             <small>If I'm not listing something I should please lmk!</small>
             <div class="grid">
-                <p><a href="https://svelte.dev">Svelte</a></p>
-                <p><a href="https://kit.svelte.dev">SvelteKit</a></p>
-                <p><a href="https://sass-lang.com/">Sass</a></p>
+                <a href="https://github.com/sveltejs/svelte">Svelte</a>
+                <a href="https://github.com/sveltejs/kit">SvelteKit</a>
+                <a href="https://github.com/pngwn/mdsvex">MDsveX</a>
+                <a href="https://github.com/sass">Sass</a>
+                <a href="https://github.com/rstacruz/nprogress">NProgress</a>
             </div>
         </div>
         <div class="card">
