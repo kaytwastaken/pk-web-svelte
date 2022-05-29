@@ -1,8 +1,9 @@
 <script lang=ts>
+    import { onMount } from "svelte";
+    // Mine
     import { memberList, deleteFlow } from "$lib/stores";
     import type { Member } from '$lib/types'
     import pk from '$lib/pk'
-    import { onMount } from "svelte";
 
     let delFlow: { member: any; visibility: any; }
     let memList: Array<Member>
@@ -36,6 +37,7 @@
         loading = true
         loadMsg = 'Deleting member...'
         try {
+            // Delete member
             await pk().members(delFlow.member.id).delete({ token })
         } catch (error) {
             err = error
@@ -46,6 +48,7 @@
         memList.splice(memList.indexOf(delFlow.member), 1)
         // Set memberList to shortened list (rerenders member cards)
         memberList.set(memList)
+
         // Close and reset the modal
         input = null
         deleteFlow.set({
@@ -59,6 +62,7 @@
 
 </script>
 
+<!-- {#if delFlow.visibility && NProgress.status != 1} -->
 {#if delFlow.visibility}
     <div class="container">
         <div id="delModal">

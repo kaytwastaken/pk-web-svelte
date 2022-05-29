@@ -86,7 +86,6 @@ export function validateMember (mem) {
     }
     for ( let prop in mem.privacy ) {
         mem.privacy[prop] = mem.privacy[prop] ? 'public' : 'private'
-        console.log(mem.privacy[prop])
     }
 }
 
@@ -105,6 +104,5 @@ export function validateSystem (sys) {
     }
     for ( let prop in sys.privacy ) {
         sys.privacy[prop] = sys.privacy[prop] ? 'public' : 'private'
-        console.log(sys.privacy[prop])
     }
 }

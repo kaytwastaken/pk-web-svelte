@@ -63,6 +63,7 @@
         
         // Validate member data
         try {
+            err = null
             loadMsg = 'Checking member data...'
             validateMember(mem)
         } catch (error) {

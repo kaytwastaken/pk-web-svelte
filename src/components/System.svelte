@@ -3,11 +3,13 @@
     export let members:Array<Member>
     export let needAuth:boolean
     
+    import { onMount } from 'svelte';
+    import NProgress from 'nprogress'
+    // Mine
     import type { System, WriteSystem, Member } from '$lib/types'
     import dateFormat from 'dateformat'
     import pk from '$lib/pk';
     import Privacy from './SystemPrivacy.svelte'
-    import { onMount } from 'svelte';
     import { validateSystem } from '$lib/validate'
 
     let token
@@ -35,43 +37,53 @@
         document.getElementById(`${system.id}-tray`).classList.toggle('hidden')
     }
     
-    async function toggleEdit (cancel = false) {
-        err = undefined
-        // If not currently editing, set to edit mode
-        if (!edit) {
-            edit = true
-        // If cancel=true is passed, set edit to false
-        } else {
-            // If cancel=false validate and send
-            if (!cancel) {
-                loading = true
-                
-                // Validate system data
-                try {
-                    loadMsg = 'Checking system data...'
-                    validateSystem(sys)
-                } catch (error) {
-                    err = error
-                    loadMsg = null
-                    loading = false
-                    return
-                }
-                
-                // Save information to PK with a patch request
-                loadMsg = '(1/2) Saving data...'
-                await pk().systems('@me').patch({ data: sys, token: token})
-                // Reassign system to a new API call to get updated information
-                loadMsg = '(2/2) Refreshing data...'
-                system = await pk().systems('@me').get({ token })
-                
-                // Exit edit mode
-                edit = false
-                loadMsg = null
-                loading = false
-                return
-            }
-            edit = false
+    function cancel() {
+        err = null
+        edit = false
+        loading = false
+        loadMsg = null
+    }
+    
+    async function saveData () {
+        loading = true
+        NProgress.configure({
+            minimum: 0.1,
+            speed: 300,
+            trickle: true,
+            trickleSpeed: 100,
+            parent: `#system`,
+            showSpinner: false,
+        })
+        NProgress.start()
+        
+        // Validate system data
+        try {
+            err = null
+            loadMsg = 'Checking system data...'
+            validateSystem(sys)
+        } catch (error) {
+            err = error
+            loadMsg = null
+            loading = false
+            NProgress.done()
+            return
         }
+        
+        // Save information to PK with a patch request
+        loadMsg = '(1/2) Saving data...'
+        NProgress.set(.3)
+        await pk().systems('@me').patch({ data: sys, token: token})
+        // Reassign system to a new API call to get updated information
+        loadMsg = '(2/2) Refreshing data...'
+        NProgress.set(.8)
+        system = await pk().systems('@me').get({ token })
+        
+        // Exit edit mode
+        edit = false
+        loadMsg = null
+        loading = false
+        NProgress.done()
+        return
 
     }
 </script>
@@ -97,7 +109,7 @@
                     </span>
                 </div>
                 {#if needAuth}
-                    <button on:click={() => {toggleEdit()}}>
+                    <button on:click={() => {edit = true}}>
                         Edit
                     </button>
                 {/if}
@@ -127,7 +139,7 @@
             </span>
         </div>
     {:else}
-        <div class="system">
+        <div id="system" class="system">
             <span class="systemHeader">
                 <img src={sys.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
                 
@@ -145,10 +157,10 @@
                 </div>
                 
                 <span class="buttons">
-                    <button id="save" on:click={() => {toggleEdit()}}>
+                    <button id="save" on:click={() => {saveData()}}>
                         Save
                     </button>
-                    <button id="cancel" on:click={() => {toggleEdit(true)}}>
+                    <button id="cancel" on:click={() => {cancel()}}>
                         Cancel
                     </button>
                 </span>

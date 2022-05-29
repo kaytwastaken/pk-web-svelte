@@ -58,8 +58,6 @@
     }
 
     async function saveData () {
-        // Do stuff
-        // Save information to PK with a patch request
         loading = true
         NProgress.configure({
             minimum: 0.1,
@@ -74,8 +72,8 @@
         loadMsg = '(1/2) Saving data...'
         NProgress.set(.3)
         try {
+            err = null
             validateMember(mem)
-            console.log("data validated")
         } catch (error) {
             err = error
             console.log("error caught" + error)
