@@ -42,7 +42,8 @@
     let showGroups = false
 
     // Define functions to fetch info
-    // let systemName
+
+    let systemName
 
     const memberFetch = async () => {
         memberList.set(await pk().systems(id).members.get({ token }).catch((err) => {error = err; console.log('memfetch error'); throw err}))
@@ -52,19 +53,19 @@
         if (groups.length == 0) {
             console.log('groups null');
             
-            groupList.set(await pk().systems(id).groups.get({ token:token, query:{"with_members": true} }))
+            groupList.set(await pk().systems(id).groups.get({ token:token, query:{"with_members": true} }).catch((err) => {error = err; console.log('groupfetch error'); throw err}))
             return
         }
         console.log('creating new promise');
         
-        groupPromise = new Promise<void>((resolve, reject) => {
+        groupPromise = new Promise<void>((resolve) => {
             resolve()
         })
 
     }
     const systemFetch = async () => {
         user = await pk().systems(id).get({ token }).catch((err) => {error = err; console.log('sysfetch error'); throw err})
-        // systemName = user.name
+        systemName = user.name
     }
     
     let systemPromise
@@ -83,25 +84,43 @@
 
     systemPromise = systemFetch()
     memberPromise = memberFetch()
+    groupList.set([])
 
 </script>
 
 <svelte:head>
-    <!-- <title>{needAuth
+    <title>{needAuth
     ? systemName ?? "Loading..."
-    : systemName ?? id} | pk-web</title> -->
+    : systemName ?? id} | pk-web</title>
 </svelte:head>
 
 <DeleteModal />
 
 <div class="container">    
+    {#if error}
+        <h1 class="err">{error.code == 429 ? 'Too many requests, try again.' : `${error.message}`}</h1>
+        <form on:submit|preventDefault={error.code == 429 || error.code == 'ERR_NETWORK' ? () => {reload()} : () => {reload(id)}}>
+            <input
+                type="text"
+                name="id"
+                id="id"
+                bind:value={id}
+                style="display:{error.code == 429 || error.code == 'ERR_NETWORK' ? 'none' : 'unset'}"
+            >
+            <input
+                type="submit"
+                value="Retry"
+            >
+        </form>
+    {/if}
+    
     {#await systemPromise}
         <h1>Loading system...</h1>
     {:then} 
         <SystemCard system={user} members={members} needAuth={needAuth}></SystemCard>
     {/await}
     
-    <div>
+    <div class="buttons">
         <button disabled={showMembers} on:click={() => {showMembers = true; showGroups = false;}}>
             Members
         </button>
@@ -139,7 +158,7 @@
         {:then}
             <div class="groups">
                 {#if needAuth}
-                    <!-- <div>frick</div> -->
+                    <!-- TODO add new group button -->
                 {/if}
                 {#key groups}
                     {#each groups as group}
@@ -151,30 +170,13 @@
             <div></div>
         {/await}
     {/if}
-
-    {#if error}
-        {console.log(error)}
-        <h1 class="err">{error.code == 429 ? 'Too many requests, try again.' : `${error.message}`}</h1>
-        <form on:submit|preventDefault={error.code == 429 || error.code == 'ERR_NETWORK' ? () => {reload()} : () => {reload(id)}}>
-            <input
-                type="text"
-                name="id"
-                id="id"
-                bind:value={id}
-                style="display:{error.code == 429 || error.code == 'ERR_NETWORK' ? 'none' : 'unset'}"
-            >
-            <input
-                type="submit"
-                value="Retry"
-            >
-        </form>
-    {/if}
 </div>
 
 
 <style lang="scss">    
     .hr {
         width: 70vw;
+        @include descending-width;
         border-bottom: 3px solid $gray;
         margin: 1rem 0 2rem 0;
     }
@@ -213,5 +215,11 @@
     }
     input[type=submit] {
         margin: 0;
+    }
+    .buttons {
+        width: 70vw;
+        @include descending-width;
+        margin: 0 auto -1rem auto;
+
     }
 </style>

@@ -1,12 +1,13 @@
 <script lang="ts">
     export let member:Member
     export let needAuth:boolean
+    export let style:string = ''
     
     import dateFormat from 'dateformat'
     import { onMount } from 'svelte';
     import NProgress from 'nprogress'
     // Mine :)
-    import { deleteFlow } from '$lib/stores';
+    import { deleteFlow, memberList } from '$lib/stores';
     import type { Member, WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
     import pk from '$lib/pk';
@@ -34,6 +35,11 @@
 
     onMount(() => {
         token = localStorage.getItem('token')
+    })
+
+    let members:Array<Member>
+    memberList.subscribe(value => {
+        members = value
     })
 
     function expandTray () {
@@ -81,7 +87,13 @@
         // Reassign member to the response from a new API call to update information
         loadMsg = '(2/2) Refreshing data...'
         NProgress.set(.8)
-        member = await pk().members(member.id).get({ token })
+        // Make API call to refresh data
+        let tempMember = await pk().members(member.id).get({ token })
+        // Delete old member data and replace it with the new data
+        members.splice(members.indexOf(member), 1, tempMember)
+        memberList.set(members)
+        // Replace visible information with new info
+        member = tempMember
         
         // Exit edit mode
         edit = false
@@ -99,7 +111,7 @@
 </script>
 
 <!-- Return a div to be used in {#each} block on the profile page -->
-<div class="cardHolder" style="border-bottom: {mem.color ? `3px solid #${mem.color}` : 'none'};">
+<div class="cardHolder" style="border-bottom: {mem.color ? `3px solid #${mem.color}` : 'none'}; {style}">
     {#if !edit}
         <div id={member.id} class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
@@ -227,9 +239,7 @@
                     <button on:click={() => {mem.proxy_tags = addProxy(mem)}}>New</button>
 
                 </div>
-                {#if needAuth}
-                    <Privacy edit={edit} mem={mem}/>
-                {/if}
+                <Privacy edit={edit} mem={mem}/>
             </span>
         </div>
     {/if}
@@ -355,7 +365,6 @@
             margin: .5rem;
         }
         @include xs-screen {
-            // flex-direction: column;
             margin-left: 0;
             align-items: flex-start !important;
             :first-child {

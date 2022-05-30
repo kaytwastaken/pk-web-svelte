@@ -12,9 +12,6 @@
 </script>
 
 <div>
-    <!-- <span><input type="checkbox" bind:checked={mem.privacy.visibility ?? false} disabled={true} name="vis" id="vis" />
-    <label for="vis"> Member visibility</label></span> -->
-
     Privacy settings <br />
     (Checked is public):
     
@@ -44,5 +41,11 @@
     div {
         display: flex;
         flex-direction: column;
+    }
+    input {
+        margin: auto 0 auto 0;
+    }
+    label {
+        margin-left: .25rem;
     }
 </style>

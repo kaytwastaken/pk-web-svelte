@@ -7,9 +7,36 @@
     // Mine :)
     import { deleteFlow } from '$lib/stores';
     import type { Group, WriteGroup } from '$lib/types'
-    // import Privacy from './MemberPrivacy.svelte'
+    import { memberList, groupList } from '$lib/stores';
+    import type { Member } from '../lib/types'
+    import MemberCard from './Members.svelte'
+    
+    import Privacy from './GroupPrivacy.svelte'
     import pk from '$lib/pk';
-    // import { validateMember, readableDOB } from '$lib/validate'
+    import { validateGroup } from '$lib/validate'
+
+    let members:Array<Member>
+    memberList.subscribe(value => {
+        members = value
+    })
+    let groupMembers:Array<Member> = []
+    let groupMemSend = []
+    function resetGroupMembers () {
+        groupMembers = []
+        groupMemSend = []
+        members.forEach(member => {
+            if ( group.members.includes(member.uuid) || group.members.includes(member.id) ) {
+                groupMembers.push(member)
+                groupMemSend.push(member.id)
+            }
+        })
+    }
+    resetGroupMembers()
+
+    let groups:Array<Group>
+    groupList.subscribe(value => {
+        groups = value
+    })
 
     let token
     let edit = false
@@ -35,6 +62,7 @@
     function expandTray () {
         if ( !edit ) {
             document.getElementById(`${group.id}-tray`).classList.toggle('hidden')
+            document.getElementById('members').classList.toggle('hidden')
         }
     }
 
@@ -43,6 +71,8 @@
         edit = false
         loading = false
         loadMsg = null
+        NProgress.done(true)
+        resetGroupMembers()
     }
 
     async function saveData () {
@@ -61,7 +91,7 @@
         try {
             err = null
             loadMsg = 'Checking member data...'
-            // validateMember(grp)
+            validateGroup(grp)
         } catch (error) {
             err = error
             loading = false
@@ -73,11 +103,32 @@
         // Save information to PK with a patch request
         loadMsg = '(1/2) Saving data...'
         NProgress.set(.3)
-        // await pk().members(group.id).patch({data: grp, token: token})
+        await pk().groups(group.id).patch({data:grp, token: token})
+        await pk().groups(group.id).members.overwrite.post({token:token, data: groupMemSend})
         // Reassign member to the response from a new API call to update information
         loadMsg = '(2/2) Refreshing data...'
         NProgress.set(.8)
-        // group = await pk().members(group.id).get({ token })
+        // Make API call to refresh data
+        let tempGroup:Group
+        try {
+            tempGroup = await pk().groups(group.id).get({ token })
+        } catch (error) {
+            if ( error.code == 429 ) {
+                console.log('too fast lmao')
+                setTimeout(async () => {
+                    tempGroup = await pk().groups(group.id).get({ token })
+                }, error.retyy_after)
+            }
+            else {
+                throw error
+            }
+        }
+        tempGroup.members = groupMemSend
+        // Delete old group data and replace it with the new data
+        groups.splice(groups.indexOf(group), 1, tempGroup)
+        groupList.set(groups)
+        // Replace visible information with new info
+        group = tempGroup
         
         // Exit edit mode
         edit = false
@@ -97,9 +148,9 @@
 <!-- Return a div to be used in {#each} block on the profile page -->
 <div class="cardHolder" style="border-bottom: {grp.color ? `3px solid #${grp.color}` : 'none'};">
     {#if !edit}
-        <div id={group.id} class="memberCard" on:click = {expandTray}>
+        <div id={group.id} class="groupCard" on:click = {expandTray}>
             <!-- Horizontal container -->
-            <span class="memberHeader">
+            <span class="groupHeader">
                 {#if group.icon}
                     <img src={group.icon} alt="" height="64px" style="border-radius: 9999px;">
                 {/if}
@@ -140,16 +191,25 @@
                     <p>{group.description ?? "No description set."}</p>
                 </div>
                 {#if needAuth}
-                    <!-- <Privacy edit={edit} mem={grp}/> -->
+                    <div class="memberChecks">
+                        <p>Members:</p>
+                        <div class="checks">
+                            {#each members as member}
+                                <span><input checked={groupMembers.includes(member)} type="checkbox" disabled={!edit} name="${member.name}-check" id="${member.name}-check" />
+                                <label for="${member.name}-check"> {member.name} ({member.id})</label></span>
+                            {/each}
+                        </div>
+                    </div>
+                    <Privacy edit={edit} grp={grp}/>
                 {/if}
             </span>
         </div>
     
     {:else}
     
-        <div id={group.id} class="memberCard">
+        <div id={group.id} class="groupCard">
             <!-- Horizontal container -->
-            <span class="memberHeader">
+            <span class="groupHeader">
                 <img src={grp.icon} alt="" height="64px" style="border-radius: 9999px; display: {group.icon == null ? 'none' : 'unset'};">
                 <!-- Vertical container -->
                 <div>
@@ -165,9 +225,10 @@
                     </span>
                 </div>
                 <span class="buttons">
-                    <button id="delete" on:click={() => {startDelete()}}>
+                    <!-- TODO make deleting work lol -->
+                    <!-- <button id="delete" on:click={() => {startDelete()}}>
                         Delete
-                    </button>
+                    </button> -->
                     <button id="cancel" on:click={() => {cancel()}}>
                         Cancel
                     </button>
@@ -197,12 +258,34 @@
                     <p style="margin-top: 1rem;">Description:</p>
                     <textarea name="desc" id="desc" bind:value={grp.description}/>
                 </div>
-                {#if needAuth}
-                    <!-- <Privacy edit={edit} mem={grp}/> -->
-                {/if}
+                <div class="memberChecks">
+                    <p>Members:</p>
+                    <div class="checks">
+                        {#each members as member}
+                            <span>
+                                <input
+                                    checked={true}
+                                    type="checkbox"
+                                    disabled={!edit}
+                                    name="members"
+                                    id="${member.name}-check"
+                                    bind:group={groupMemSend}
+                                    value={member.id}
+                                />
+                                <label for="${member.name}-check"> {member.name} ({member.id})</label>
+                            </span>
+                        {/each}
+                    </div>
+                </div>
+                <Privacy edit={edit} grp={grp}/>
             </span>
         </div>
     {/if}
+</div>
+<div class="members hidden" id="members">
+    {#each groupMembers as member}
+        <MemberCard member={member} needAuth={needAuth} style='width: 100%;'/>
+    {/each}
 </div>
 
 
@@ -258,9 +341,27 @@
                 }
             }
         }
-        
     }
-    
+    .members {
+        margin: 1rem 0 0 1rem;
+        padding: 0 0 0 1rem;
+        border-left: 2px solid $gray;
+    }
+    .memberChecks {
+        display: flex;
+        flex-direction: column;
+        .checks {
+            max-height: 20rem;
+            overflow-y: auto;
+            padding-right: 1rem;
+            input {
+                margin: auto 0 auto 0;
+            }
+            label {
+                margin-left: .25rem;
+            }
+        }
+    }
     span {
         display: flex;
         flex-direction: row;
@@ -268,13 +369,12 @@
     .cardHolder {
         border-radius: .5rem;
         background: $gray;
-        margin-bottom: 1rem;
         width: 70vw;
         max-width: 70vw;
         @include descending-width;
         @include descending-maximum;
     }
-    .memberCard {
+    .groupCard {
         max-width: 70vw;
         @include descending-maximum;
         background: $gray;
@@ -293,7 +393,7 @@
             }
         }
     }
-    .memberHeader {
+    .groupHeader {
         button {
             margin-left: auto;
         }
@@ -325,7 +425,6 @@
             margin: .5rem;
         }
         @include xs-screen {
-            // flex-direction: column;
             margin-left: 0;
             align-items: flex-start !important;
             :first-child {
@@ -354,7 +453,7 @@
     #delete:hover {
         background-color: $red-2;
     }
-    input {
+    input[type=text] {
         margin-left: auto !important;
         margin-right: 35% !important;
         width: 50%;
@@ -374,24 +473,6 @@
             margin-right: 1% !important;
         }
     }
-    .proxy-tag {
-        align-items: center;
-        input {
-            margin: 5px !important;
-        }
-        input:hover {
-            background-color: $gray-2;
-        }
-        :first-child {
-            margin-left: 0px !important;
-        }    
-        button {
-            background-color: $red;
-        }
-        button:hover {
-        background-color: $red-2;
-        }
-    }
     textarea {
         height: 20rem;
         width: 35rem;
@@ -408,7 +489,7 @@
             width: 100%;
         }
     }
-    .memberCard:hover {
+    .groupCard:hover {
         background-color: $gray-2;
     }
 </style>

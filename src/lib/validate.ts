@@ -89,6 +89,25 @@ export function validateMember (mem) {
     }
 }
 
+export function validateGroup (grp) {
+    // Validate DOB w function from $lib/birthday.ts
+    if ( grp.color ) {
+        // Check against a valid 6-character hex regex
+        if ( !/^(#|)[A-Fa-f0-9]{6}$/.test(grp.color) ) {
+            // ✨ regexes :D
+            throw new Error("Please enter a valid hex color code")
+        }
+        // Return without the # if neccessary
+        if ( grp.color.slice(0,1) == '#' ) {
+            grp.color = grp.color.slice(1,7)
+        }
+
+    }
+    for ( let prop in grp.privacy ) {
+        grp.privacy[prop] = grp.privacy[prop] ? 'public' : 'private'
+    }
+}
+
 export function validateSystem (sys) {
     if ( sys.color ) {
         // Check against a valid 6-character hex regex
