@@ -138,10 +138,8 @@
     }
     button {
         margin: .6rem;
-        border: none;
         background: $blue;
         padding: .6rem;
-        border: none;
         border-radius: 5px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

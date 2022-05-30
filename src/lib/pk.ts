@@ -31,6 +31,7 @@ export default function() {
                         "content-type": name == "get" ? undefined : "application/json"
                     },
                     data: !!data ? JSON.stringify(data) : undefined,
+                    params: query,
                     validateStatus: () => true,
                 }).then((resp) => res(parseData(resp.status, resp.data))).catch(rej));
                 
