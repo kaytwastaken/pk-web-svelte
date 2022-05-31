@@ -46,17 +46,15 @@
     let systemName
 
     const memberFetch = async () => {
-        memberList.set(await pk().systems(id).members.get({ token }).catch((err) => {error = err; console.log('memfetch error'); throw err}))
+        memberList.set(await pk().systems(id).members.get({ token }).catch((err) => {error = err; console.log(err); throw err}))
     }
+    let gottenGroup = false
     const groupFetch = async () => {
-        console.log('group fetch')
-        if (groups.length == 0) {
-            console.log('groups null');
-            
-            groupList.set(await pk().systems(id).groups.get({ token:token, query:{"with_members": true} }).catch((err) => {error = err; console.log('groupfetch error'); throw err}))
+        if (!gottenGroup) {
+            groupList.set(await pk().systems(id).groups.get({ token:token, query:{"with_members": true} }).catch((err) => {error = err; console.log(err); throw err}))
+            gottenGroup = true
             return
         }
-        console.log('creating new promise');
         
         groupPromise = new Promise<void>((resolve) => {
             resolve()
@@ -64,7 +62,7 @@
 
     }
     const systemFetch = async () => {
-        user = await pk().systems(id).get({ token }).catch((err) => {error = err; console.log('sysfetch error'); throw err})
+        user = await pk().systems(id).get({ token }).catch((err) => {error = err; console.log(err); throw err})
         systemName = user.name
     }
     
@@ -84,7 +82,6 @@
 
     systemPromise = systemFetch()
     memberPromise = memberFetch()
-    groupList.set([])
 
 </script>
 
@@ -158,7 +155,7 @@
         {:then}
             <div class="groups">
                 {#if needAuth}
-                    <!-- TODO add new group button -->
+                    TODO add new group button
                 {/if}
                 {#key groups}
                     {#each groups as group}

@@ -114,7 +114,6 @@
             tempGroup = await pk().groups(group.id).get({ token })
         } catch (error) {
             if ( error.code == 429 ) {
-                console.log('too fast lmao')
                 setTimeout(async () => {
                     tempGroup = await pk().groups(group.id).get({ token })
                 }, error.retyy_after)

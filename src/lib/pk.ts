@@ -28,7 +28,8 @@ export default function() {
                     method: name,
                     headers: {
                         authorization: token ?? (auth ? localStorage.getItem("pk-token") : undefined),
-                        "content-type": name == "get" ? undefined : "application/json"
+                        // "content-type": name == "get" ? undefined : "application/json"
+                        "content-type": "application/json"
                     },
                     data: !!data ? JSON.stringify(data) : undefined,
                     params: query,

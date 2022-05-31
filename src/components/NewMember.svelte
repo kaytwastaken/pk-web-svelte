@@ -76,7 +76,6 @@
             validateMember(mem)
         } catch (error) {
             err = error
-            console.log("error caught" + error)
             loading = false
             loadMsg = null
             NProgress.done()
