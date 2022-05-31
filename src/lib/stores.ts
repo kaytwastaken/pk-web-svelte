@@ -6,4 +6,6 @@ export const currentUser = writable(null)
 
 export const memberList = writable([])
 
+export const groupList = writable([])
+
 export const deleteFlow = writable({visibility: false, member: null})

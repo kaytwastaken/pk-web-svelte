@@ -206,7 +206,6 @@
         border-radius: .5rem;
         p {
             white-space: pre-wrap;
-            // max-width: fit-content;
         }
         .banner {
             width: 50%;
@@ -370,9 +369,6 @@
         @include md-screen {
             width: 20rem;
         }
-        // @include sm-screen {
-        //     width: 15rem;
-        // }
         @include xs-screen {
             width: 100%;
         }

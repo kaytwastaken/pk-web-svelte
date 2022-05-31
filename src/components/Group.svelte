@@ -1,18 +1,42 @@
 <script lang="ts">
-    export let member:Member
+    export let group:Group
     export let needAuth:boolean
-    export let style:string = ''
     
-    import dateFormat from 'dateformat'
     import { onMount } from 'svelte';
     import NProgress from 'nprogress'
     // Mine :)
-    import { deleteFlow, memberList } from '$lib/stores';
-    import type { Member, WriteMember } from '$lib/types'
-    import Privacy from './MemberPrivacy.svelte'
+    import { deleteFlow } from '$lib/stores';
+    import type { Group, WriteGroup } from '$lib/types'
+    import { memberList, groupList } from '$lib/stores';
+    import type { Member } from '../lib/types'
+    import MemberCard from './Members.svelte'
+    
+    import Privacy from './GroupPrivacy.svelte'
     import pk from '$lib/pk';
-    import { validateMember, readableDOB } from '$lib/validate'
-    import { addProxy, deleteProxy } from '$lib/members'
+    import { validateGroup } from '$lib/validate'
+
+    let members:Array<Member>
+    memberList.subscribe(value => {
+        members = value
+    })
+    let groupMembers:Array<Member> = []
+    let groupMemSend = []
+    function resetGroupMembers () {
+        groupMembers = []
+        groupMemSend = []
+        members.forEach(member => {
+            if ( group.members.includes(member.uuid) || group.members.includes(member.id) ) {
+                groupMembers.push(member)
+                groupMemSend.push(member.id)
+            }
+        })
+    }
+    resetGroupMembers()
+
+    let groups:Array<Group>
+    groupList.subscribe(value => {
+        groups = value
+    })
 
     let token
     let edit = false
@@ -20,31 +44,25 @@
     let loading = false
     let loadMsg
     
-    let mem:WriteMember = {
-        name: member.name,
-        display_name: member.display_name,
-        color: member.color,
-        birthday: member.birthday,
-        pronouns: member.pronouns,
-        avatar_url: member.avatar_url,
-        banner: member.banner,
-        description: member.description,
-        proxy_tags: member.proxy_tags,
-        privacy: member.privacy,
+    let grp:WriteGroup = {
+        name: group.name,
+        display_name: group.display_name,
+        color: group.color,
+        icon: group.icon,
+        banner: group.banner,
+        description: group.description,
+        privacy: group.privacy,
+        members: group.members,
     }
 
     onMount(() => {
         token = localStorage.getItem('token')
     })
 
-    let members:Array<Member>
-    memberList.subscribe(value => {
-        members = value
-    })
-
     function expandTray () {
         if ( !edit ) {
-            document.getElementById(`${member.id}-tray`).classList.toggle('hidden')
+            document.getElementById(`${group.id}-tray`).classList.toggle('hidden')
+            document.getElementById('members').classList.toggle('hidden')
         }
     }
 
@@ -53,6 +71,8 @@
         edit = false
         loading = false
         loadMsg = null
+        NProgress.done(true)
+        resetGroupMembers()
     }
 
     async function saveData () {
@@ -62,7 +82,7 @@
             speed: 300,
             trickle: true,
             trickleSpeed: 100,
-            parent: `#${member.id}`,
+            parent: `#${group.id}`,
             showSpinner: false,
         })
         NProgress.start()
@@ -71,7 +91,7 @@
         try {
             err = null
             loadMsg = 'Checking member data...'
-            validateMember(mem)
+            validateGroup(grp)
         } catch (error) {
             err = error
             loading = false
@@ -83,17 +103,32 @@
         // Save information to PK with a patch request
         loadMsg = '(1/2) Saving data...'
         NProgress.set(.3)
-        await pk().members(member.id).patch({data: mem, token: token})
+        await pk().groups(group.id).patch({data:grp, token: token})
+        await pk().groups(group.id).members.overwrite.post({token:token, data: groupMemSend})
         // Reassign member to the response from a new API call to update information
         loadMsg = '(2/2) Refreshing data...'
         NProgress.set(.8)
         // Make API call to refresh data
-        let tempMember = await pk().members(member.id).get({ token })
-        // Delete old member data and replace it with the new data
-        members.splice(members.indexOf(member), 1, tempMember)
-        memberList.set(members)
+        let tempGroup:Group
+        try {
+            tempGroup = await pk().groups(group.id).get({ token })
+        } catch (error) {
+            if ( error.code == 429 ) {
+                console.log('too fast lmao')
+                setTimeout(async () => {
+                    tempGroup = await pk().groups(group.id).get({ token })
+                }, error.retyy_after)
+            }
+            else {
+                throw error
+            }
+        }
+        tempGroup.members = groupMemSend
+        // Delete old group data and replace it with the new data
+        groups.splice(groups.indexOf(group), 1, tempGroup)
+        groupList.set(groups)
         // Replace visible information with new info
-        member = tempMember
+        group = tempGroup
         
         // Exit edit mode
         edit = false
@@ -105,33 +140,33 @@
     
     // Danger zone :O
     function startDelete () {
-        deleteFlow.set({visibility: true, member: member})
+        deleteFlow.set({visibility: true, member: group})
     }
 
 </script>
 
 <!-- Return a div to be used in {#each} block on the profile page -->
-<div class="cardHolder" style="border-bottom: {mem.color ? `3px solid #${mem.color}` : 'none'}; {style}">
+<div class="cardHolder" style="border-bottom: {grp.color ? `3px solid #${grp.color}` : 'none'};">
     {#if !edit}
-        <div id={member.id} class="memberCard" on:click = {expandTray}>
+        <div id={group.id} class="groupCard" on:click = {expandTray}>
             <!-- Horizontal container -->
-            <span class="memberHeader">
-                {#if member.avatar_url}
-                    <img src={member.avatar_url} alt="" height="64px" style="border-radius: 9999px;">
+            <span class="groupHeader">
+                {#if group.icon}
+                    <img src={group.icon} alt="" height="64px" style="border-radius: 9999px;">
                 {/if}
                 <!-- Vertical container -->
                 <div>
                     <!-- Horizontal container -->
                     <span>
-                        <h2 class="name">{member.name}</h2>
+                        <h2 class="name">{group.name}</h2>
                         <p>|</p>
-                        <p>{member.display_name ?? "No display name set"}</p>
+                        <p>{group.display_name ?? "No display name set"}</p>
                     </span>
                     <!-- Horizontal container -->
                     <span>
-                        <small>{member.id}</small>
+                        <small>{group.id}</small>
                         <p>|</p>
-                        <small>{member.pronouns ?? "No pronouns set"}</small>
+                        <p>{group.members.length == 1 ? `1 member` : `${group.members.length} members`}</p>
                     </span>
                 </div>
                 {#if needAuth}
@@ -141,60 +176,59 @@
                 {/if}
             </span>
         </div>
-        <div class="tray hidden" id="{member.id}-tray">
+        <div class="tray hidden" id="{group.id}-tray">
             <div style="margin-bottom: 1rem;">
-                {#if member.banner}
-                    <img class="banner" src={member.banner} alt="">
+                {#if group.banner}
+                    <img class="banner" src={group.banner} alt="">
                 {/if}
-                <p>Registered: <code>{dateFormat(member.created, "dddd, mmmm dS, yyyy")}</code> at <code>{dateFormat(member.created, "h:MM:ss TT")}</code></p>
-                <p>Name: {member.name ?? "N/A"}</p>
-                <p>Display name: {member.display_name ?? "N/A"}</p>
-                <p>Birthday: {member.birthday ? readableDOB(member.birthday) : "N/A"}</p>
-                <p>Pronouns: {member.pronouns ?? "N/A"}</p>
-                <span><p>Color: {member.color ?? "N/A"}</p> <span id='swatch' style="background-color: #{member.color};"></span></span>
+                <p>Name: {group.name ?? "N/A"}</p>
+                <p>Display name: {group.display_name ?? "N/A"}</p>
+                <span><p>Color: {group.color ?? "N/A"}</p> <span id='swatch' style="background-color: #{group.color};"></span></span>
             </div>
             <span class="detail">
                 <div>
                     Description:
-                    <p>{member.description ?? "No description set."}</p>
-                </div>
-                <div>
-                    <p>Proxies:</p>
-                    {#each member.proxy_tags as proxy}
-                        <p>{proxy.prefix ?? ""} text {proxy.suffix ?? ""}</p>
-                    {/each}
+                    <p>{group.description ?? "No description set."}</p>
                 </div>
                 {#if needAuth}
-                    <Privacy edit={edit} mem={mem}/>
+                    <div class="memberChecks">
+                        <p>Members:</p>
+                        <div class="checks">
+                            {#each members as member}
+                                <span><input checked={groupMembers.includes(member)} type="checkbox" disabled={!edit} name="${member.name}-check" id="${member.name}-check" />
+                                <label for="${member.name}-check"> {member.name} ({member.id})</label></span>
+                            {/each}
+                        </div>
+                    </div>
+                    <Privacy edit={edit} grp={grp}/>
                 {/if}
             </span>
         </div>
     
     {:else}
     
-        <div id={member.id} class="memberCard">
+        <div id={group.id} class="groupCard">
             <!-- Horizontal container -->
-            <span class="memberHeader">
-                <img src={mem.avatar_url} alt="" height="64px" style="border-radius: 9999px; display: {member.avatar_url == null ? 'none' : 'unset'};">
+            <span class="groupHeader">
+                <img src={grp.icon} alt="" height="64px" style="border-radius: 9999px; display: {group.icon == null ? 'none' : 'unset'};">
                 <!-- Vertical container -->
                 <div>
                     <!-- Horizontal container -->
                     <span>
-                        <h2>{member.name}</h2>
+                        <h2>{group.name}</h2>
                         <p>|</p>
-                        <p>{member.display_name ?? "No display name set"}</p>
+                        <p>{group.display_name ?? "No display name set"}</p>
                     </span>
                     <!-- Horizontal container -->
                     <span>
-                        <small>{member.id}</small>
-                        <p>|</p>
-                        <small>{member.pronouns ?? "No pronouns set"}</small>
+                        <small>{group.id}</small>
                     </span>
                 </div>
                 <span class="buttons">
-                    <button id="delete" on:click={() => {startDelete()}}>
+                    <!-- TODO make deleting work lol -->
+                    <!-- <button id="delete" on:click={() => {startDelete()}}>
                         Delete
-                    </button>
+                    </button> -->
                     <button id="cancel" on:click={() => {cancel()}}>
                         Cancel
                     </button>
@@ -204,45 +238,54 @@
                 </span>
             </span>
         </div>
-        <div class="tray" id="{member.id}-tray">
+        <div class="tray" id="{group.id}-tray">
             <div style="margin-bottom: 1rem;">
                 <p class="err">{err ?? ""}</p>
                 <p class="load">{loading ? loadMsg : ""}</p>
-                <span> <p>Name: </p> <input type="text" name="name" id="name" placeholder={member.name ?? "Name"} bind:value={mem.name}> </span>
-                <span> <p>Display Name: </p> <input type="text" name="tag" id="tag" placeholder={member.display_name ?? "Display name"} bind:value={mem.display_name}> </span>
-                <span> <p>Birthday: </p> <input type="text" name="dob" id="dob" placeholder={member.birthday ?? "Birthday (yyyy-mm-dd or mm-dd)"} bind:value={mem.birthday}> </span>
-                <span> <p>Pronouns: </p> <input type="text" name="prns" id="prns" placeholder={member.pronouns ?? "Pronouns"} bind:value={mem.pronouns}> </span>
-                <span> <p>Color: </p> <input type="text" name="color" id="color" placeholder={member.color ?? "Color"} bind:value={mem.color}> </span>
-                <span id='swatch-edit' style="background-color: #{mem.color};"></span>
-                <span> <p>Avatar URL: </p> <input type="text" name="pfp" id="pfp" placeholder={member.avatar_url ?? "Avatar URL"} bind:value={mem.avatar_url}> </span>
-                <img src={mem.avatar_url} alt="" height="64px">
-                <span> <p>Banner URL: </p> <input type="text" name="banner" id="banner" placeholder={member.banner ?? "Banner URL"} bind:value={mem.banner}> </span>
-                {#if mem.banner}
-                    <img class="banner" src={mem.banner} alt="">
+                <span> <p>Name: </p> <input type="text" name="name" id="name" placeholder={group.name ?? "Name"} bind:value={grp.name}> </span>
+                <span> <p>Display Name: </p> <input type="text" name="tag" id="tag" placeholder={group.display_name ?? "Display name"} bind:value={grp.display_name}> </span>
+                <span> <p>Color: </p> <input type="text" name="color" id="color" placeholder={group.color ?? "Color"} bind:value={grp.color}> </span>
+                <span id='swatch-edit' style="background-color: #{grp.color};"></span>
+                <span> <p>Avatar URL: </p> <input type="text" name="pfp" id="pfp" placeholder={group.icon ?? "Avatar URL"} bind:value={grp.icon}> </span>
+                <img src={grp.icon} alt="" height="64px">
+                <span> <p>Banner URL: </p> <input type="text" name="banner" id="banner" placeholder={group.banner ?? "Banner URL"} bind:value={grp.banner}> </span>
+                {#if grp.banner}
+                    <img class="banner" src={grp.banner} alt="">
                 {/if}
             </div>
             <span class="detail">
                 <div>
                     <p style="margin-top: 1rem;">Description:</p>
-                    <textarea name="desc" id="desc" bind:value={mem.description}/>
+                    <textarea name="desc" id="desc" bind:value={grp.description}/>
                 </div>
-                <div>
-                    <p>Proxies:</p>
-                    {#each mem.proxy_tags as proxy, index}
-                        <span class="proxy-tag" id={`proxy-${index}`}>
-                            <input type="text"  name="prefix" id="pre" placeholder="Prefix" bind:value={proxy.prefix}>
-                            <p>text</p>
-                            <input type="text" name="suffix" id="suf" placeholder="Suffix" bind:value={proxy.suffix}>
-                            <button on:click={() => {mem.proxy_tags = deleteProxy(index, mem)}}>✖</button>
-                        </span>
-                    {/each}
-                    <button on:click={() => {mem.proxy_tags = addProxy(mem)}}>New</button>
-
+                <div class="memberChecks">
+                    <p>Members:</p>
+                    <div class="checks">
+                        {#each members as member}
+                            <span>
+                                <input
+                                    checked={true}
+                                    type="checkbox"
+                                    disabled={!edit}
+                                    name="members"
+                                    id="${member.name}-check"
+                                    bind:group={groupMemSend}
+                                    value={member.id}
+                                />
+                                <label for="${member.name}-check"> {member.name} ({member.id})</label>
+                            </span>
+                        {/each}
+                    </div>
                 </div>
-                <Privacy edit={edit} mem={mem}/>
+                <Privacy edit={edit} grp={grp}/>
             </span>
         </div>
     {/if}
+</div>
+<div class="members hidden" id="members">
+    {#each groupMembers as member}
+        <MemberCard member={member} needAuth={needAuth} style='width: 100%;'/>
+    {/each}
 </div>
 
 
@@ -298,9 +341,27 @@
                 }
             }
         }
-        
     }
-    
+    .members {
+        margin: 1rem 0 0 1rem;
+        padding: 0 0 0 1rem;
+        border-left: 2px solid $gray;
+    }
+    .memberChecks {
+        display: flex;
+        flex-direction: column;
+        .checks {
+            max-height: 20rem;
+            overflow-y: auto;
+            padding-right: 1rem;
+            input {
+                margin: auto 0 auto 0;
+            }
+            label {
+                margin-left: .25rem;
+            }
+        }
+    }
     span {
         display: flex;
         flex-direction: row;
@@ -308,13 +369,12 @@
     .cardHolder {
         border-radius: .5rem;
         background: $gray;
-        margin-bottom: 1rem;
         width: 70vw;
         max-width: 70vw;
         @include descending-width;
         @include descending-maximum;
     }
-    .memberCard {
+    .groupCard {
         max-width: 70vw;
         @include descending-maximum;
         background: $gray;
@@ -333,7 +393,7 @@
             }
         }
     }
-    .memberHeader {
+    .groupHeader {
         button {
             margin-left: auto;
         }
@@ -393,7 +453,7 @@
     #delete:hover {
         background-color: $red-2;
     }
-    input {
+    input[type=text] {
         margin-left: auto !important;
         margin-right: 35% !important;
         width: 50%;
@@ -413,24 +473,6 @@
             margin-right: 1% !important;
         }
     }
-    .proxy-tag {
-        align-items: center;
-        input {
-            margin: 5px !important;
-        }
-        input:hover {
-            background-color: $gray-2;
-        }
-        :first-child {
-            margin-left: 0px !important;
-        }    
-        button {
-            background-color: $red;
-        }
-        button:hover {
-        background-color: $red-2;
-        }
-    }
     textarea {
         height: 20rem;
         width: 35rem;
@@ -447,7 +489,7 @@
             width: 100%;
         }
     }
-    .memberCard:hover {
+    .groupCard:hover {
         background-color: $gray-2;
     }
 </style>

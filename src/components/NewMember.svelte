@@ -112,9 +112,6 @@
                     <button on:click={() => {edit = true}}>
                         New Member
                     </button>
-                    <!-- <button disabled={true}>
-                        New Group
-                    </button> -->
                 </span>
             {:else}
                 <span class="buttons">
@@ -386,9 +383,6 @@
         @include md-screen {
             width: 20rem;
         }
-        // @include sm-screen {
-        //     width: 15rem;
-        // }
         @include xs-screen {
             width: 100%;
         }

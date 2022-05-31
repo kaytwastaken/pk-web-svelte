@@ -96,7 +96,6 @@
         height: 100vh;
         width: 100vw;
         z-index: 100;
-        // background-color: change-color($color: $gray,  $alpha: .5);
     }
     #delModal {
         padding: 5rem;

@@ -34,6 +34,11 @@ export interface WriteSystem {
     privacy?: SysPrivacy
 }
 
+export type ProxyTag = {
+    prefix: string
+    suffix: string
+}
+
 export type MemPrivacy = {
     visibility: string
     name_privacy: string
@@ -42,11 +47,6 @@ export type MemPrivacy = {
     pronoun_privacy: string
     avatar_privacy: string
     metadata_privacy: string
-}
-
-export type ProxyTag = {
-    prefix: string
-    suffix: string
 }
 
 export type Member = {
@@ -76,6 +76,39 @@ export interface WriteMember {
     banner: string
     description: string
     proxy_tags: Array<ProxyTag>
-    // keep_proxy: boolean
     privacy: MemPrivacy
 }
+
+export type GrpPrivacy = {
+    visibility: string
+    name_privacy: string
+    description_privacy: string
+    icon_privacy: string
+    list_privacy: string
+    metadata_privacy: string
+}
+
+export type Group = {
+    id: string
+    uuid: string
+    name: string
+    display_name: string
+    description: string
+    icon: string
+    banner: string
+    color: string
+    members: Array<string>
+    privacy: GrpPrivacy
+}
+
+export interface WriteGroup {
+    name: string
+    display_name: string
+    description: string
+    icon: string
+    banner: string
+    color: string
+    members: Array<string>
+    privacy: GrpPrivacy
+}
+// write grp

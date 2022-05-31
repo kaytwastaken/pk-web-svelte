@@ -12,9 +12,6 @@
 </script>
 
 <div>
-    <!-- <span><input type="checkbox" bind:checked={mem.privacy.visibility ?? false} disabled={true} name="vis" id="vis" />
-    <label for="vis"> Member visibility</label></span> -->
-
     Privacy settings <br />
     (Checked is public):
     

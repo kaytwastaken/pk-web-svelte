@@ -74,10 +74,11 @@ input[type=submit], button {
 }
 button {
     width: unset;
+    border: 1px solid transparent;
 }
 button:disabled {
-    background: none;
     border: 1px solid $blue;
+    background: none;
     color: $blue;
     opacity: .7
 }
