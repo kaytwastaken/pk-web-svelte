@@ -62,7 +62,7 @@
     function expandTray () {
         if ( !edit ) {
             document.getElementById(`${group.id}-tray`).classList.toggle('hidden')
-            document.getElementById('members').classList.toggle('hidden')
+            document.getElementById(`${group.id}-members`).classList.toggle('hidden')
         }
     }
 
@@ -282,7 +282,7 @@
         </div>
     {/if}
 </div>
-<div class="members hidden" id="members">
+<div class="members hidden" id="{group.id}-members">
     {#each groupMembers as member}
         <MemberCard member={member} needAuth={needAuth} style='width: 100%;'/>
     {/each}
@@ -368,6 +368,7 @@
     }
     .cardHolder {
         border-radius: .5rem;
+        margin-bottom: 1rem;
         background: $gray;
         width: 70vw;
         max-width: 70vw;
