@@ -284,7 +284,7 @@
 </div>
 <div class="members hidden" id="{group.id}-members">
     {#each groupMembers as member}
-        <MemberCard member={member} needAuth={needAuth} style='width: 100%;'/>
+        <MemberCard member={member} needAuth={needAuth} style='width: 100%;' group={group.id}/>
     {/each}
 </div>
 

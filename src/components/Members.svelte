@@ -1,7 +1,8 @@
 <script lang="ts">
     export let member:Member
     export let needAuth:boolean
-    export let style:string = ''
+    export let style = ''
+    export let group:string = null
     
     import dateFormat from 'dateformat'
     import { onMount } from 'svelte';
@@ -44,7 +45,8 @@
 
     function expandTray () {
         if ( !edit ) {
-            document.getElementById(`${member.id}-tray`).classList.toggle('hidden')
+            document.getElementById(`${member.id}${group ? `-${group}` : "" }-tray`).classList.toggle('hidden')
+            // id="{member.id}{group ? `-${group}` : "" }-tray"
         }
     }
 
@@ -113,7 +115,7 @@
 <!-- Return a div to be used in {#each} block on the profile page -->
 <div class="cardHolder" style="border-bottom: {mem.color ? `3px solid #${mem.color}` : 'none'}; {style}">
     {#if !edit}
-        <div id={member.id} class="memberCard" on:click = {expandTray}>
+        <div id="{member.id}{group ? `-${group}` : "" }" class="memberCard" on:click = {expandTray}>
             <!-- Horizontal container -->
             <span class="memberHeader">
                 {#if member.avatar_url}
@@ -141,7 +143,7 @@
                 {/if}
             </span>
         </div>
-        <div class="tray hidden" id="{member.id}-tray">
+        <div class="tray hidden" id="{member.id}{group ? `-${group}` : "" }-tray">
             <div style="margin-bottom: 1rem;">
                 {#if member.banner}
                     <img class="banner" src={member.banner} alt="">
