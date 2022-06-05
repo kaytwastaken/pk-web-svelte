@@ -107,7 +107,8 @@
                     value="Submit"
                 >
             </form>
-        {/if}
+            {/if}
+        <p style="margin-top: 1rem;">As of June 5th, 2022 PluralKit now has an official dashboard available at <a href="https://dash.pluralkit.me">dash.pluralkit.me</a>.<br>This site will stay up for the forseeable future, though updates may be slower.</p>
     </div>
 </div>
 
