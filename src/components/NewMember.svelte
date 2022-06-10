@@ -3,18 +3,18 @@
     import { onMount } from 'svelte'
     import NProgress from 'nprogress'
     // Mine :)
-    import type { WriteMember } from '$lib/types'
+    import type { Member, WriteMember } from '$lib/types'
     import Privacy from './MemberPrivacy.svelte'
     import { validateMember } from '$lib/validate'
     import pk from '$lib/pk'
     import { addProxy, deleteProxy } from '$lib/members'
 
-    let token
+    let token: string
     let edit = false
-    let err
+    let err: string
     let loading = false
-    let loadMsg
-    let memList
+    let loadMsg: string
+    let memList: Array<Member>
     
     onMount(() => {
         token = localStorage.getItem('token')
@@ -85,7 +85,7 @@
         
         loadMsg = '(2/2) Refreshing data...'
         NProgress.set(0.8)
-        // Post req to API and add response to memList
+        // Post req to API and add response to $memberList
         memList.push(await pk().members().post({data: mem, token: token}))
         
         // Update store with new memList

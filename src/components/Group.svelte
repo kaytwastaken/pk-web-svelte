@@ -5,26 +5,21 @@
     import { onMount } from 'svelte';
     import NProgress from 'nprogress'
     // Mine :)
-    import { deleteFlow } from '$lib/stores';
-    import type { Group, WriteGroup } from '$lib/types'
+    import type { Group, WriteGroup, Member } from '$lib/types'
     import { memberList, groupList } from '$lib/stores';
-    import type { Member } from '../lib/types'
+    // import { deleteFlow } from '$lib/stores'
     import MemberCard from './Members.svelte'
     
     import Privacy from './GroupPrivacy.svelte'
     import pk from '$lib/pk';
     import { validateGroup } from '$lib/validate'
 
-    let members:Array<Member>
-    memberList.subscribe(value => {
-        members = value
-    })
     let groupMembers:Array<Member> = []
     let groupMemSend = []
     function resetGroupMembers () {
         groupMembers = []
         groupMemSend = []
-        members.forEach(member => {
+        $memberList.forEach(member => {
             if ( group.members.includes(member.uuid) || group.members.includes(member.id) ) {
                 groupMembers.push(member)
                 groupMemSend.push(member.id)
@@ -138,9 +133,9 @@
     }
     
     // Danger zone :O
-    function startDelete () {
-        deleteFlow.set({visibility: true, member: group})
-    }
+    // function startDelete () {
+    //     deleteFlow.set({visibility: true, member: group})
+    // }
 
 </script>
 
@@ -193,7 +188,7 @@
                     <div class="memberChecks">
                         <p>Members:</p>
                         <div class="checks">
-                            {#each members as member}
+                            {#each $memberList as member}
                                 <span><input checked={groupMembers.includes(member)} type="checkbox" disabled={!edit} name="${member.name}-check" id="${member.name}-check" />
                                 <label for="${member.name}-check"> {member.name} ({member.id})</label></span>
                             {/each}
@@ -260,7 +255,7 @@
                 <div class="memberChecks">
                     <p>Members:</p>
                     <div class="checks">
-                        {#each members as member}
+                        {#each $memberList as member}
                             <span>
                                 <input
                                     checked={true}

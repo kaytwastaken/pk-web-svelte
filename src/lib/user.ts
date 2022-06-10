@@ -25,6 +25,6 @@ export function logout() {
     // token = '';
     localStorage.removeItem("token");
     // Clear the stores
-    loggedIn.update(() => false);
-    currentUser.update(() => null);
+    loggedIn.set(false);
+    currentUser.set(null);
 }

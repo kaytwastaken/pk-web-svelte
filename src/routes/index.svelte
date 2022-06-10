@@ -16,17 +16,6 @@
     let editButton
     let publicButton
 
-    let isLoggedIn:boolean
-    let user;
-
-    // Subcribe to the loggedIn and currentUser stores
-    loggedIn.subscribe(value => {
-        isLoggedIn = value
-    })
-    currentUser.subscribe(value => {
-        user = value
-    })
-
     onMount(() => { 
         // If token is already stored, use it to log in
         if (localStorage.getItem("token")) {
@@ -75,9 +64,9 @@
             <hr>
         
         <!-- If a user is currently logged in display their information -->
-        {:else if isLoggedIn}
-            {#if user && user.name}
-                <h1 class="loggedIn">Logged in as <code>{user.name}</code></h1>
+        {:else if $loggedIn}
+            {#if $currentUser && $currentUser.name}
+                <h1 class="loggedIn">Logged in as <code>{$currentUser.name}</code></h1>
             {:else}
                 <h1>Welcome!</h1>
             {/if}

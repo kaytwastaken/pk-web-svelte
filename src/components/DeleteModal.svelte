@@ -2,11 +2,8 @@
     import { onMount } from "svelte";
     // Mine
     import { memberList, deleteFlow } from "$lib/stores";
-    import type { Member } from '$lib/types'
     import pk from '$lib/pk'
 
-    let delFlow: { member: any; visibility: any; }
-    let memList: Array<Member>
     let input: string
     let token: string
     let err = null
@@ -15,14 +12,6 @@
 
     onMount(() => {
         token = localStorage.getItem('token')
-    })
-    
-    deleteFlow.subscribe(value => {
-        delFlow = value
-    })
-
-    memberList.subscribe(value => {
-        memList = value
     })
 
     function cancel () {
@@ -38,16 +27,16 @@
         loadMsg = 'Deleting member...'
         try {
             // Delete member
-            await pk().members(delFlow.member.id).delete({ token })
+            await pk().members($deleteFlow.member.id).delete({ token })
         } catch (error) {
             err = error
             return
         }
         
-        // Remove member from memList
-        memList.splice(memList.indexOf(delFlow.member), 1)
+        // Remove member from $memberList
+        $memberList.splice($memberList.indexOf($deleteFlow.member), 1)
         // Set memberList to shortened list (rerenders member cards)
-        memberList.set(memList)
+        memberList.set($memberList)
 
         // Close and reset the modal
         input = null
@@ -62,14 +51,14 @@
 
 </script>
 
-<!-- {#if delFlow.visibility && NProgress.status != 1} -->
-{#if delFlow.visibility}
+<!-- {#if $deleteFlow.visibility && NProgress.status != 1} -->
+{#if $deleteFlow.visibility}
     <div class="container">
         <div id="delModal">
-            <h2 style="margin-bottom: 1rem;">Are you sure you want to delete {delFlow.member.name}? <em>This cannot be undone!</em></h2>
+            <h2 style="margin-bottom: 1rem;">Are you sure you want to delete {$deleteFlow.member.name}? <em>This cannot be undone!</em></h2>
             <p class="err">{err ?? ''}</p>
             <p class="load">{loading ? loadMsg : ''}</p>
-            <label for="id">Input {delFlow.member.name}'s id ({delFlow.member.id}) to continue.</label>
+            <label for="id">Input {$deleteFlow.member.name}'s id ({$deleteFlow.member.id}) to continue.</label>
             <div>
                 <span class="inputs">
                     <input type="text" name="id" id="id" bind:value={input}>
@@ -77,7 +66,7 @@
                         <button id="cancel" on:click={cancel}>
                             Cancel
                         </button>
-                        <button id="delete" disabled={input == delFlow.member.id ? false : true} on:click={() => {deleteMember()}}>
+                        <button id="delete" disabled={input == $deleteFlow.member.id ? false : true} on:click={() => {deleteMember()}}>
                             Delete
                         </button>
                     </span>
